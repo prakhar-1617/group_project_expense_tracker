@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Loader2, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { motion } from 'framer-motion';
 
 export default function Login() {
   const [email, setEmail] = useState('demo@fintrack.app');
@@ -22,27 +23,46 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-900 transition-colors">
-      <div className="w-full max-w-md card animate-slide-up">
-        <div className="text-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg mx-auto mb-4">
-            <span className="text-white text-2xl">💰</span>
+    <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-[#050505] transition-colors relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-primary-500/20 to-fuchsia-500/20 rounded-full blur-[100px] opacity-50 pointer-events-none"></div>
+      <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none mix-blend-screen animate-blob"></div>
+      
+      <motion.div 
+        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.6, type: "spring", stiffness: 200, damping: 20 }}
+        className="w-full max-w-md card glass border-white/40 dark:border-white/10 z-10 p-8 shadow-2xl relative"
+      >
+        <div className="absolute -top-12 -left-12 w-24 h-24 bg-gradient-to-br from-primary-400 to-fuchsia-500 rounded-full blur-2xl opacity-50 animate-pulse-slow"></div>
+        
+        <div className="text-center mb-8 relative z-10">
+          <motion.div 
+            whileHover={{ rotate: [0, -10, 10, -5, 5, 0] }}
+            transition={{ duration: 0.5 }}
+            className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-primary-500/40 mx-auto mb-5 relative group"
+          >
+            <Sparkles className="text-white w-8 h-8 absolute opacity-0 group-hover:opacity-100 group-hover:scale-125 transition-all duration-300" />
+            <span className="text-white text-3xl group-hover:opacity-0 transition-opacity duration-300">💰</span>
+          </motion.div>
+          <h1 className="text-3xl font-black text-slate-800 dark:text-white mb-2 tracking-tight">Welcome Back</h1>
+          <p className="text-slate-500 dark:text-slate-400 font-medium">Sign in to manage your finances</p>
+          <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-500/10 border border-primary-100 dark:border-primary-500/20">
+            <span className="w-2 h-2 rounded-full bg-primary-500 animate-pulse"></span>
+            <p className="text-xs text-primary-600 dark:text-primary-400 font-bold uppercase tracking-wider">Demo Mode Ready</p>
           </div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Welcome Back</h1>
-          <p className="text-slate-500 dark:text-slate-400">Sign in to manage your finances</p>
-          <p className="text-xs text-indigo-500 mt-2 font-medium">🎯 Demo Mode — click Sign In to proceed</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
+        <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
+          <div className="space-y-1">
             <label className="label">Email Address</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-slate-400" />
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-primary-500">
+                <Mail className="h-5 w-5 text-slate-400 group-focus-within:text-primary-500 transition-colors" />
               </div>
               <input
                 type="email"
-                className="input pl-10"
+                className="input pl-11 py-3 text-base shadow-sm bg-white/60 dark:bg-dark-bg/60 border-slate-200/80 dark:border-dark-border/80"
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -51,15 +71,15 @@ export default function Login() {
             </div>
           </div>
 
-          <div>
+          <div className="space-y-1">
             <label className="label">Password</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-slate-400" />
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Lock className="h-5 w-5 text-slate-400 group-focus-within:text-primary-500 transition-colors" />
               </div>
               <input
                 type="password"
-                className="input pl-10"
+                className="input pl-11 py-3 text-base shadow-sm bg-white/60 dark:bg-dark-bg/60 border-slate-200/80 dark:border-dark-border/80"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -68,26 +88,28 @@ export default function Login() {
             </div>
           </div>
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={loading}
-            className="w-full btn-primary flex justify-center items-center gap-2"
+            className="w-full btn-primary py-3.5 text-lg flex justify-center items-center gap-2 mt-4"
           >
             {loading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <Loader2 className="w-6 h-6 animate-spin" />
             ) : (
               <>Sign In <ArrowRight className="w-5 h-5" /></>
             )}
-          </button>
+          </motion.button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
+        <p className="mt-8 text-center text-sm font-medium text-slate-600 dark:text-slate-400 relative z-10">
           Don't have an account?{' '}
-          <Link to="/signup" className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
-            Sign up
+          <Link to="/signup" className="text-primary-600 dark:text-primary-400 font-bold hover:underline hover:text-primary-700 dark:hover:text-primary-300 transition-colors">
+            Sign up now
           </Link>
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,62 +6,72 @@
 @layer base {
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    @apply font-sans bg-slate-50 text-slate-800 transition-colors duration-300;
+    @apply font-sans bg-slate-50 text-slate-800 transition-colors duration-300 antialiased selection:bg-primary-500/30 selection:text-primary-900 dark:selection:text-primary-100;
   }
-  .dark body { @apply bg-slate-900 text-slate-100; }
+  .dark body { @apply bg-dark-bg text-dark-text; }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-['Outfit'];
+  }
 }
 
 @layer components {
   .card {
-    @apply bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 transition-all duration-200;
+    @apply bg-white/80 dark:bg-dark-card/80 backdrop-blur-md rounded-2xl shadow-sm border border-slate-100 dark:border-dark-border p-6 transition-all duration-300;
   }
   .card-hover {
-    @apply hover:shadow-md hover:-translate-y-0.5 transition-all duration-200;
+    @apply hover:shadow-xl hover:shadow-primary-500/10 dark:hover:shadow-primary-500/5 hover:-translate-y-1 transition-all duration-300;
   }
   .btn-primary {
-    @apply bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2.5 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed;
+    @apply relative overflow-hidden bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white font-semibold px-6 py-2.5 rounded-xl transition-all duration-300 shadow-md shadow-primary-500/25 hover:shadow-lg hover:shadow-primary-500/40 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed z-10 before:absolute before:inset-0 before:bg-white/20 before:translate-y-full hover:before:translate-y-0 before:transition-transform before:duration-300 before:-z-10;
   }
   .btn-secondary {
-    @apply bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold px-5 py-2.5 rounded-xl transition-all duration-200 active:scale-95;
+    @apply bg-white dark:bg-dark-card hover:bg-slate-50 dark:hover:bg-dark-border border border-slate-200 dark:border-dark-border text-slate-700 dark:text-slate-200 font-semibold px-6 py-2.5 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md active:scale-95;
   }
   .btn-danger {
-    @apply bg-red-500 hover:bg-red-600 text-white font-semibold px-5 py-2.5 rounded-xl transition-all duration-200 active:scale-95;
+    @apply bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white font-semibold px-6 py-2.5 rounded-xl transition-all duration-300 shadow-md shadow-red-500/25 hover:shadow-lg hover:shadow-red-500/40 active:scale-95;
   }
   .input {
-    @apply w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200;
+    @apply w-full bg-white/50 dark:bg-dark-bg/50 border border-slate-200 dark:border-dark-border rounded-xl px-4 py-3 text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all duration-200 backdrop-blur-sm;
   }
   .label {
     @apply block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5;
   }
   .badge-income {
-    @apply bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 text-xs font-semibold px-2.5 py-1 rounded-full;
+    @apply bg-emerald-100/80 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-500/20 backdrop-blur-sm;
   }
   .badge-expense {
-    @apply bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 text-xs font-semibold px-2.5 py-1 rounded-full;
+    @apply bg-rose-100/80 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 text-xs font-bold px-3 py-1 rounded-full border border-rose-200 dark:border-rose-500/20 backdrop-blur-sm;
   }
 }
 
 /* Scrollbar */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { @apply bg-slate-100 dark:bg-slate-800; }
-::-webkit-scrollbar-thumb { @apply bg-slate-300 dark:bg-slate-600 rounded-full; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { @apply bg-transparent; }
+::-webkit-scrollbar-thumb { @apply bg-slate-300/80 dark:bg-slate-700/80 rounded-full border-2 border-slate-50 dark:border-dark-bg hover:bg-slate-400 dark:hover:bg-slate-600; }
 
 /* Gradient text */
 .gradient-text {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  @apply bg-clip-text text-transparent bg-gradient-to-r;
+}
+.gradient-primary {
+  @apply from-primary-600 to-fuchsia-500;
+}
+.gradient-success {
+  @apply from-emerald-500 to-teal-400;
+}
+.gradient-danger {
+  @apply from-rose-500 to-orange-400;
 }
 
 /* Glass effect */
 .glass {
-  backdrop-filter: blur(16px);
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.2);
+  @apply bg-white/60 dark:bg-dark-card/60 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-xl shadow-slate-200/50 dark:shadow-black/50;
 }
 
-.dark .glass {
-  background: rgba(15,23,42,0.6);
-  border: 1px solid rgba(99,102,241,0.2);
+/* Background animated glow elements */
+.bg-glow-blob {
+  @apply absolute rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob;
+}
+.dark .bg-glow-blob {
+  @apply mix-blend-screen opacity-20;
 }

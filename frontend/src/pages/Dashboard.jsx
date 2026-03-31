@@ -3,18 +3,31 @@ import API from '../api/axios';
 import StatCard from '../components/StatCard';
 import { Wallet, TrendingUp, TrendingDown, Target, Sparkles, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+};
 
 export default function Dashboard() {
   const [summary, setSummary] = useState(null);
   const [budget, setBudget] = useState(null);
   const [recentTxns, setRecentTxns] = useState([]);
-  const [insight, setInsight] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [summaryRes, budgetRes, txnsRes, aiRes] = await Promise.all([
+        const [summaryRes, budgetRes, txnsRes] = await Promise.all([
           API.get('/transactions/summary'),
           API.get('/budget'),
           API.get('/transactions?limit=5')
@@ -34,7 +47,10 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="flex h-[calc(100vh-100px)] items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+        <div className="relative w-16 h-16">
+          <div className="absolute inset-0 rounded-full border-4 border-primary-200 dark:border-primary-900/50"></div>
+          <div className="absolute inset-0 rounded-full border-4 border-primary-600 border-t-transparent animate-spin"></div>
+        </div>
       </div>
     );
   }
@@ -43,62 +59,98 @@ export default function Dashboard() {
   const { monthlyBudget = 0 } = budget || {};
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Dashboard Overview</h1>
-        <Link to="/transactions" className="btn-primary text-sm px-4 py-2">+ Add Transaction</Link>
-      </div>
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="space-y-8"
+    >
+      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-800 dark:text-white tracking-tight">Dashboard Overview</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Welcome back, let's track your finances.</p>
+        </div>
+        <Link to="/transactions" className="btn-primary text-sm px-5 py-2.5 inline-flex items-center gap-2 group">
+          <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform" /> Add Transaction
+        </Link>
+      </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard title="Total Balance"   value={`₹${balance.toFixed(2)}`}      icon={<Wallet />}      color="indigo" />
-        <StatCard title="Total Income"    value={`₹${totalIncome.toFixed(2)}`}   icon={<TrendingUp />}  color="emerald" />
-        <StatCard title="Total Expenses"  value={`₹${totalExpense.toFixed(2)}`}  icon={<TrendingDown />} color="red" />
-        <StatCard title="Monthly Budget"  value={`₹${monthlyBudget.toFixed(2)}`} icon={<Target />}      color="amber"
+      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard title="Total Balance"   value={`₹${balance.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`}      icon={<Wallet />}      color="indigo" />
+        <StatCard title="Total Income"    value={`₹${totalIncome.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`}   icon={<TrendingUp />}  color="emerald" />
+        <StatCard title="Total Expenses"  value={`₹${totalExpense.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`}  icon={<TrendingDown />} color="red" />
+        <StatCard title="Monthly Budget"  value={`₹${monthlyBudget.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} icon={<Target />}      color="amber"
           sub={monthlyBudget > 0 ? `${((totalExpense / monthlyBudget) * 100).toFixed(1)}% used` : 'No budget set'} />
-      </div>
+      </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 card">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-slate-800 dark:text-white">Recent Transactions</h2>
-            <Link to="/transactions" className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 flex items-center gap-1">
+        <motion.div variants={itemVariants} className="lg:col-span-2 card relative z-10">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+              <span className="w-2 h-6 rounded-full bg-gradient-to-b from-primary-500 to-fuchsia-500"></span>
+              Recent Transactions
+            </h2>
+            <Link to="/transactions" className="text-sm font-bold text-primary-600 dark:text-primary-400 hover:text-primary-700 flex items-center gap-1 hover:gap-2 transition-all">
               View All <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
 
           {recentTxns.length === 0 ? (
-            <div className="text-center py-8 text-slate-500">No recent transactions found.</div>
+            <div className="text-center py-12 flex flex-col items-center">
+              <div className="w-16 h-16 bg-slate-100 dark:bg-dark-bg rounded-full flex items-center justify-center mb-4">
+                <ArrowLeftRight className="w-8 h-8 text-slate-400" />
+              </div>
+              <p className="text-slate-500 font-medium">No recent transactions found.</p>
+            </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {recentTxns.map((txn) => (
-                <div key={txn._id} className="flex items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-xl transition-colors">
+                <motion.div 
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  whileHover={{ x: 4, scale: 1.01 }}
+                  key={txn._id} 
+                  className="flex items-center justify-between p-4 bg-white dark:bg-dark-bg/50 border border-slate-100 dark:border-dark-border hover:border-primary-100 dark:hover:border-primary-900/50 rounded-2xl transition-all shadow-sm hover:shadow-md cursor-pointer"
+                >
                   <div className="flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${txn.type === 'income' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30' : 'bg-red-100 text-red-600 dark:bg-red-900/30'}`}>
-                      {txn.type === 'income' ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border shadow-inner ${txn.type === 'income' ? 'bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-500/10 dark:to-emerald-500/5 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20' : 'bg-gradient-to-br from-rose-50 to-rose-100 dark:from-rose-500/10 dark:to-rose-500/5 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-500/20'}`}>
+                      {txn.type === 'income' ? <TrendingUp className="w-6 h-6" /> : <TrendingDown className="w-6 h-6" />}
                     </div>
                     <div>
-                      <p className="font-semibold text-slate-800 dark:text-white">{txn.description}</p>
-                      <p className="text-xs text-slate-500">{new Date(txn.date).toLocaleDateString()} • {txn.category}</p>
+                      <p className="font-bold text-slate-800 dark:text-white text-base">{txn.description}</p>
+                      <p className="text-xs font-semibold text-slate-500 mt-0.5">{new Date(txn.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} • <span className="text-primary-600 dark:text-primary-400">{txn.category}</span></p>
                     </div>
                   </div>
-                  <div className={`font-bold ${txn.type === 'income' ? 'text-emerald-500' : 'text-slate-800 dark:text-white'}`}>
-                    {txn.type === 'income' ? '+' : '-'}₹{txn.amount.toFixed(2)}
+                  <div className={`font-bold text-lg ${txn.type === 'income' ? 'text-emerald-500' : 'text-slate-800 dark:text-white'}`}>
+                    {txn.type === 'income' ? '+' : '-'}₹{txn.amount.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           )}
-        </div>
+        </motion.div>
 
-        <div className="card text-center flex flex-col items-center justify-center p-8 space-y-4">
-          <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center text-indigo-600 mb-2">
-            <Target className="w-8 h-8" />
+        <motion.div variants={itemVariants} className="card relative z-10 overflow-hidden flex flex-col group">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-fuchsia-500/5 z-0"></div>
+          <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+          
+          <div className="relative z-10 flex flex-col items-center justify-center flex-1 py-8 text-center">
+            <motion.div 
+              whileHover={{ rotate: 180 }}
+              transition={{ duration: 0.5 }}
+              className="w-20 h-20 bg-gradient-to-br from-primary-100 to-fuchsia-100 dark:from-primary-900/30 dark:to-fuchsia-900/30 rounded-3xl flex items-center justify-center text-primary-600 dark:text-primary-400 mb-6 shadow-inner border border-white/50 dark:border-white/5"
+            >
+              <Target className="w-10 h-10" />
+            </motion.div>
+            <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">Manage Your Budget</h3>
+            <p className="text-sm text-slate-500 mb-8 max-w-[200px]">Set limits and track your financial goals to build wealth over time.</p>
+            <Link to="/budget" className="btn-secondary w-full group relative overflow-hidden">
+              <span className="relative z-10">Configure Budget</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-primary-500/0 via-primary-500/10 to-primary-500/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+            </Link>
           </div>
-          <h3 className="font-bold text-slate-800 dark:text-white">Manage Your Budget</h3>
-          <p className="text-sm text-slate-500">Set limits to track your financial goals.</p>
-          <Link to="/budget" className="btn-secondary w-full">Go to Budget</Link>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }

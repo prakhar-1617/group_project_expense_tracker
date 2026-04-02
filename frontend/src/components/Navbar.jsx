@@ -22,20 +22,38 @@ export default function Navbar() {
 
   return (
     <header className="md:hidden fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-dark-card/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-dark-border/50 px-4 h-16 flex items-center justify-between shadow-sm">
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary-500 to-fuchsia-600 flex items-center justify-center shadow-md shadow-primary-500/30">
-          <TrendingUp size={16} className="text-white" />
-        </div>
+      <motion.div 
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="flex items-center gap-3 cursor-pointer"
+      >
+        <motion.div 
+          whileHover={{ rotate: 180 }}
+          transition={{ duration: 0.4 }}
+          className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary-500 to-fuchsia-600 flex items-center justify-center shadow-md shadow-primary-500/30"
+        >
+          <TrendingUp size={16} className="text-white relative z-10" />
+        </motion.div>
         <span className="font-bold text-lg text-slate-800 dark:text-white tracking-tight">FinTrack</span>
-      </div>
+      </motion.div>
 
       <div className="flex items-center gap-2">
-        <button onClick={toggle} className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-dark-border/50 hover:text-primary-600 dark:hover:text-primary-400 transition-all">
+        <motion.button 
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={toggle} 
+          className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-dark-border/50 hover:text-primary-600 dark:hover:text-primary-400 transition-all"
+        >
           {dark ? <Sun size={20} /> : <Moon size={20} />}
-        </button>
-        <button onClick={() => setOpen(!open)} className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-dark-border/50 transition-all">
+        </motion.button>
+        <motion.button 
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setOpen(!open)} 
+          className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-dark-border/50 transition-all"
+        >
           {open ? <X size={22} className="text-red-500" /> : <Menu size={22} />}
-        </button>
+        </motion.button>
       </div>
 
       <AnimatePresence>

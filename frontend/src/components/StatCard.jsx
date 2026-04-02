@@ -12,8 +12,9 @@ export default function StatCard({ title, value, icon, color, sub, trend }) {
   return (
     <motion.div 
       whileHover={{ y: -5, scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
       transition={{ type: "spring", stiffness: 300 }}
-      className="card relative overflow-hidden group"
+      className="card relative overflow-hidden group cursor-pointer"
     >
       {/* Decorative background blob */}
       <div className={`absolute -right-8 -top-8 w-32 h-32 rounded-full bg-gradient-to-br ${colors[color] || colors.indigo} opacity-10 blur-2xl group-hover:scale-150 transition-transform duration-700`}></div>
@@ -30,9 +31,13 @@ export default function StatCard({ title, value, icon, color, sub, trend }) {
             </div>
           )}
         </div>
-        <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${colors[color] || colors.indigo} flex items-center justify-center shadow-lg transform group-hover:rotate-12 group-hover:scale-110 transition-all duration-300`}>
+        <motion.div 
+          whileHover={{ rotate: 12, scale: 1.1 }}
+          transition={{ type: "spring", stiffness: 300, damping: 15 }}
+          className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${colors[color] || colors.indigo} flex items-center justify-center shadow-lg transition-all duration-300`}
+        >
           <span className="text-white text-xl">{icon}</span>
-        </div>
+        </motion.div>
       </div>
     </motion.div>
   );

@@ -47,10 +47,14 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="flex h-[calc(100vh-100px)] items-center justify-center">
-        <div className="relative w-16 h-16">
+        <motion.div 
+          animate={{ scale: [1, 1.1, 1], rotate: [0, 180, 360] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          className="relative w-16 h-16"
+        >
           <div className="absolute inset-0 rounded-full border-4 border-primary-200 dark:border-primary-900/50"></div>
-          <div className="absolute inset-0 rounded-full border-4 border-primary-600 border-t-transparent animate-spin"></div>
-        </div>
+          <div className="absolute inset-0 rounded-full border-4 border-primary-600 border-t-transparent"></div>
+        </motion.div>
       </div>
     );
   }
@@ -70,9 +74,11 @@ export default function Dashboard() {
           <h1 className="text-3xl font-bold text-slate-800 dark:text-white tracking-tight">Dashboard Overview</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">Welcome back, let's track your finances.</p>
         </div>
-        <Link to="/transactions" className="btn-primary text-sm px-5 py-2.5 inline-flex items-center gap-2 group">
-          <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform" /> Add Transaction
-        </Link>
+        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <Link to="/transactions" className="btn-primary text-sm px-5 py-2.5 inline-flex items-center gap-2 group">
+            <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform" /> Add Transaction
+          </Link>
+        </motion.div>
       </motion.div>
 
       <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -90,9 +96,11 @@ export default function Dashboard() {
               <span className="w-2 h-6 rounded-full bg-gradient-to-b from-primary-500 to-fuchsia-500"></span>
               Recent Transactions
             </h2>
-            <Link to="/transactions" className="text-sm font-bold text-primary-600 dark:text-primary-400 hover:text-primary-700 flex items-center gap-1 hover:gap-2 transition-all">
-              View All <ArrowRight className="w-4 h-4" />
-            </Link>
+            <motion.div whileHover={{ scale: 1.05, x: 2 }} whileTap={{ scale: 0.95 }}>
+              <Link to="/transactions" className="text-sm font-bold text-primary-600 dark:text-primary-400 hover:text-primary-700 flex items-center gap-1 transition-all">
+                View All <ArrowRight className="w-4 h-4" />
+              </Link>
+            </motion.div>
           </div>
 
           {recentTxns.length === 0 ? (
@@ -108,7 +116,8 @@ export default function Dashboard() {
                 <motion.div 
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  whileHover={{ x: 4, scale: 1.01 }}
+                  whileHover={{ x: 4, scale: 1.01, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05)" }}
+                  whileTap={{ scale: 0.98 }}
                   key={txn._id} 
                   className="flex items-center justify-between p-4 bg-white dark:bg-dark-bg/50 border border-slate-100 dark:border-dark-border hover:border-primary-100 dark:hover:border-primary-900/50 rounded-2xl transition-all shadow-sm hover:shadow-md cursor-pointer"
                 >
@@ -136,18 +145,21 @@ export default function Dashboard() {
           
           <div className="relative z-10 flex flex-col items-center justify-center flex-1 py-8 text-center">
             <motion.div 
-              whileHover={{ rotate: 180 }}
-              transition={{ duration: 0.5 }}
-              className="w-20 h-20 bg-gradient-to-br from-primary-100 to-fuchsia-100 dark:from-primary-900/30 dark:to-fuchsia-900/30 rounded-3xl flex items-center justify-center text-primary-600 dark:text-primary-400 mb-6 shadow-inner border border-white/50 dark:border-white/5"
+              whileHover={{ rotate: 180, scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              transition={{ duration: 0.5, type: "spring" }}
+              className="w-20 h-20 bg-gradient-to-br from-primary-100 to-fuchsia-100 dark:from-primary-900/30 dark:to-fuchsia-900/30 rounded-3xl flex items-center justify-center text-primary-600 dark:text-primary-400 mb-6 shadow-inner border border-white/50 dark:border-white/5 cursor-pointer"
             >
               <Target className="w-10 h-10" />
             </motion.div>
             <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">Manage Your Budget</h3>
             <p className="text-sm text-slate-500 mb-8 max-w-[200px]">Set limits and track your financial goals to build wealth over time.</p>
-            <Link to="/budget" className="btn-secondary w-full group relative overflow-hidden">
-              <span className="relative z-10">Configure Budget</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-primary-500/0 via-primary-500/10 to-primary-500/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-            </Link>
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full">
+              <Link to="/budget" className="btn-secondary w-full group relative overflow-hidden inline-block text-center flex-1 py-3">
+                <span className="relative z-10 block">Configure Budget</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary-500/0 via-primary-500/10 to-primary-500/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+              </Link>
+            </motion.div>
           </div>
         </motion.div>
       </div>

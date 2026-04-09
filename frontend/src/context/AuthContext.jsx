@@ -1,51 +1,73 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import API from '../api/axios';
 
 const AuthContext = createContext(null);
 
-// DEMO MODE: Uses localStorage only — no backend needed
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('user')); } catch { return null; }
-  });
-  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const res = await API.get('/auth/me');
+          setUser(res.data);
+        } catch (error) {
+          console.error("Failed to fetch user", error);
+          localStorage.removeItem('token');
+        }
+      }
+      setLoading(false);
+    };
+    fetchUser();
+  }, []);
 
   const login = async (email, password) => {
     setLoading(true);
-    await new Promise(r => setTimeout(r, 500)); // simulate network
-    const userData = { name: 'Demo User', email, token: 'demo-token' };
-    localStorage.setItem('token', userData.token);
-    localStorage.setItem('user', JSON.stringify(userData));
-    setUser(userData);
-    setLoading(false);
-    return userData;
+    try {
+      const res = await API.post('/auth/login', { email, password });
+      localStorage.setItem('token', res.data.token);
+      setUser(res.data);
+      return res.data;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const register = async (name, email, password) => {
     setLoading(true);
-    await new Promise(r => setTimeout(r, 500));
-    const userData = { name, email, token: 'demo-token' };
-    localStorage.setItem('token', userData.token);
-    localStorage.setItem('user', JSON.stringify(userData));
-    setUser(userData);
-    setLoading(false);
-    return userData;
+    try {
+      const res = await API.post('/auth/register', { name, email, password });
+      localStorage.setItem('token', res.data.token);
+      setUser(res.data);
+      return res.data;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('user');
     setUser(null);
   };
 
-  const updateUser = (updated) => {
-    const merged = { ...user, ...updated };
-    localStorage.setItem('user', JSON.stringify(merged));
-    setUser(merged);
+  const updateUser = async (updatedData) => {
+    try {
+      const res = await API.put('/auth/profile', updatedData);
+      setUser(res.data);
+      return res.data;
+    } catch (error) {
+      console.error("Update profile failed", error);
+      throw error;
+    }
   };
 
+  // Provide everything. loading acts as global auth loading state
   return (
     <AuthContext.Provider value={{ user, login, register, logout, loading, updateUser }}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import API from '../api/axios';
 import StatCard from '../components/StatCard';
-import { Wallet, TrendingUp, TrendingDown, Target, Sparkles, ArrowRight } from 'lucide-react';
+import { Wallet, TrendingUp, TrendingDown, Target, Sparkles, ArrowRight, ArrowLeftRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 

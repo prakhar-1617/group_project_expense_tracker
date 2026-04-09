@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { SplitProvider } from './context/SplitContext';
 import { Toaster } from 'react-hot-toast';
 
 // Layout & Components
@@ -14,6 +15,7 @@ import Dashboard from './pages/Dashboard';
 import Transactions from './pages/Transactions';
 import Analytics from './pages/Analytics';
 import Budget from './pages/Budget';
+import SplitExpenses from './pages/SplitExpenses';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -41,6 +43,7 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
+        <SplitProvider>
         <Router>
           <Toaster position="top-right" />
           <Routes>
@@ -61,8 +64,12 @@ function App() {
             <Route path="/budget" element={
               <PrivateRoute><AppLayout><Budget /></AppLayout></PrivateRoute>
             } />
+            <Route path="/split" element={
+              <PrivateRoute><AppLayout><SplitExpenses /></AppLayout></PrivateRoute>
+            } />
           </Routes>
         </Router>
+        </SplitProvider>
       </AuthProvider>
     </ThemeProvider>
   );

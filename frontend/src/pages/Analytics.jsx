@@ -111,7 +111,7 @@ export default function Analytics() {
             </div>
           ) : (
             <div className="flex-1 min-h-0 relative z-10">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="99%" height="100%">
                 <PieChart>
                   <Pie data={categoryData} cx="50%" cy="50%" innerRadius={70} outerRadius={120} paddingAngle={8} dataKey="value" stroke="none">
                     {categoryData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} className="drop-shadow-sm hover:opacity-80 transition-opacity" />)}
@@ -139,7 +139,7 @@ export default function Analytics() {
             </div>
           ) : (
             <div className="flex-1 min-h-0 relative z-10">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="99%" height="100%">
                 <BarChart data={trendData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
@@ -179,7 +179,7 @@ export default function Analytics() {
             </div>
           ) : (
             <div className="flex-1 min-h-0 relative z-10">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="99%" height="100%">
                 <LineChart data={trendData} margin={{ top: 20, right: 30, left: 10, bottom: 20 }}>
                   <defs>
                     <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">

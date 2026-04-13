@@ -224,8 +224,8 @@ export default function SplitExpenseModal({ onClose }) {
             {/* Participant rows */}
             <div className="flex flex-col gap-2">
               {participants.map((p, i) => (
-                <motion.div key={i} layout initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50/80 dark:bg-dark-bg/50 border border-slate-200/50 dark:border-dark-border/50">
+                <div key={i}
+                  className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50/80 dark:bg-dark-bg/50 border border-slate-200/50 dark:border-dark-border/50 transition-all duration-300 animate-in fade-in slide-in-from-left-2">
                   <div className="flex-1 min-w-0">
                     {i === 0 ? (
                       <p className="text-sm font-semibold text-slate-800 dark:text-white truncate">You</p>
@@ -263,7 +263,7 @@ export default function SplitExpenseModal({ onClose }) {
                       </button>
                     )}
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
 

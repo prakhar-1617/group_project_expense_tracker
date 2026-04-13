@@ -80,8 +80,8 @@ export default function Budget() {
               <label className="label text-left">Monthly Spending Limit (₹)</label>
               <div className="relative mt-2">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-slate-400">₹</span>
-                <input type="number" min="0" step="100" value={budget}
-                  onChange={(e) => setBudget(Number(e.target.value))}
+                <input type="number" min="0" step="100" value={budget || ''}
+                  onChange={(e) => setBudget(e.target.value ? Number(e.target.value) : 0)}
                   className="w-full bg-slate-50 dark:bg-dark-bg border-2 border-slate-200 dark:border-dark-border focus:border-primary-500 dark:focus:border-primary-500 rounded-2xl pl-10 pr-4 py-4 text-3xl font-black text-slate-800 dark:text-white transition-all shadow-inner" required />
               </div>
             </div>

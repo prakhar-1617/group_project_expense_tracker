@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { User, Mail, Lock, ArrowRight, Loader2, Sparkles } from 'lucide-react';
+import { User, Mail, Lock, Phone, ArrowRight, Loader2, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
 
@@ -9,17 +9,23 @@ export default function Signup() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const { register, loading } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await register(name, email, password);
-      toast.success('Account created successfully!');
-      navigate('/dashboard');
+      const sanitizedPhone = phoneNumber.replace(/[\s\-\(\)\.]/g, '');
+      await register(name, email, password, sanitizedPhone);
+      toast.success('Account created! Please verify your email and phone.');
+      navigate(`/verify?email=${email}`);
     } catch (err) {
-      toast.error('Registration failed');
+      const message = err.response?.data?.message || 
+                      err.response?.data?.errors?.[0]?.msg || 
+                      err.message || 
+                      'Registration failed';
+      toast.error(message);
     }
   };
 
@@ -79,8 +85,19 @@ export default function Signup() {
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-emerald-500">
                 <Lock className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
               </div>
-              <input type="password" className="input pl-11 py-3 text-base shadow-sm bg-white/60 dark:bg-dark-bg/60 border-slate-200/80 dark:border-dark-border/80 focus:ring-emerald-500/50 focus:border-emerald-500" placeholder="••••••••"
+              <input type="password" id="password-input" className="input pl-11 py-3 text-base shadow-sm bg-white/60 dark:bg-dark-bg/60 border-slate-200/80 dark:border-dark-border/80 focus:ring-emerald-500/50 focus:border-emerald-500" placeholder="••••••••"
                 value={password} onChange={(e) => setPassword(e.target.value)} minLength="6" required />
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <label className="label">Phone Number</label>
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-emerald-500">
+                <Phone className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+              </div>
+              <input type="text" id="phone-input" className="input pl-11 py-3 text-base shadow-sm bg-white/60 dark:bg-dark-bg/60 border-slate-200/80 dark:border-dark-border/80 focus:ring-emerald-500/50 focus:border-emerald-500" placeholder="+91XXXXXXXXXX"
+                value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} required />
             </div>
           </div>
 

@@ -4,6 +4,7 @@ import StatCard from '../components/StatCard';
 import { Wallet, TrendingUp, TrendingDown, Target, Sparkles, ArrowRight, ArrowLeftRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import AIHub from '../components/AI/AIHub';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -90,57 +91,11 @@ export default function Dashboard() {
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <motion.div variants={itemVariants} className="lg:col-span-2 card relative z-10">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-              <span className="w-2 h-6 rounded-full bg-gradient-to-b from-primary-500 to-fuchsia-500"></span>
-              Recent Transactions
-            </h2>
-            <motion.div whileHover={{ scale: 1.05, x: 2 }} whileTap={{ scale: 0.95 }}>
-              <Link to="/transactions" className="text-sm font-bold text-primary-600 dark:text-primary-400 hover:text-primary-700 flex items-center gap-1 transition-all">
-                View All <ArrowRight className="w-4 h-4" />
-              </Link>
-            </motion.div>
-          </div>
-
-          {recentTxns.length === 0 ? (
-            <div className="text-center py-12 flex flex-col items-center">
-              <div className="w-16 h-16 bg-slate-100 dark:bg-dark-bg rounded-full flex items-center justify-center mb-4">
-                <ArrowLeftRight className="w-8 h-8 text-slate-400" />
-              </div>
-              <p className="text-slate-500 font-medium">No recent transactions found.</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {recentTxns.map((txn) => (
-                <motion.div 
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  whileHover={{ x: 4, scale: 1.01, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05)" }}
-                  whileTap={{ scale: 0.98 }}
-                  key={txn._id} 
-                  className="flex items-center justify-between p-4 bg-white dark:bg-dark-bg/50 border border-slate-100 dark:border-dark-border hover:border-primary-100 dark:hover:border-primary-900/50 rounded-2xl transition-all shadow-sm hover:shadow-md cursor-pointer"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border shadow-inner ${txn.type === 'income' ? 'bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-500/10 dark:to-emerald-500/5 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20' : 'bg-gradient-to-br from-rose-50 to-rose-100 dark:from-rose-500/10 dark:to-rose-500/5 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-500/20'}`}>
-                      {txn.type === 'income' ? <TrendingUp className="w-6 h-6" /> : <TrendingDown className="w-6 h-6" />}
-                    </div>
-                    <div>
-                      <p className="font-bold text-slate-800 dark:text-white text-base">{txn.description}</p>
-                      <p className="text-xs font-semibold text-slate-500 mt-0.5">{new Date(txn.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} • <span className="text-primary-600 dark:text-primary-400">{txn.category}</span></p>
-                    </div>
-                  </div>
-                  <div className={`font-bold text-lg ${txn.type === 'income' ? 'text-emerald-500' : 'text-slate-800 dark:text-white'}`}>
-                    {txn.type === 'income' ? '+' : '-'}₹{txn.amount.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </motion.div>
+        <AIHub />
 
         <motion.div variants={itemVariants} className="card relative z-10 overflow-hidden flex flex-col group">
           <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-fuchsia-500/5 z-0"></div>
+          {/* Rest of the target card content... */}
           <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
           
           <div className="relative z-10 flex flex-col items-center justify-center flex-1 py-8 text-center">

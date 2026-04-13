@@ -15,8 +15,22 @@ export default function TransactionModal({ onClose, onSave, existing }) {
     date: new Date(existing.date).toISOString().split('T')[0],
   } : EMPTY);
   const [loading, setLoading] = useState(false);
+  const [aiConfidence, setAiConfidence] = useState(null);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleAIDetection = async (desc) => {
+    if (desc.trim().length <= 3) return;
+    try {
+      const res = await API.post('/ai/categorize', { description: desc });
+      if (res.data.success && res.data.category) {
+        setForm(prev => ({ ...prev, category: res.data.category }));
+        setAiConfidence(res.data.confidence);
+      }
+    } catch (err) {
+      console.error("AI Categorization failed", err);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -73,14 +87,36 @@ export default function TransactionModal({ onClose, onSave, existing }) {
 
           {/* Description */}
           <div>
-            <label className="label">Description</label>
-            <input name="description" value={form.description} onChange={handleChange}
-              placeholder='e.g. "bought pizza"' className="input" />
+            <label className="label flex justify-between items-center text-xs">
+              Description 
+              {aiConfidence && (
+                <span className="text-[10px] text-primary-500 font-bold uppercase tracking-wider animate-pulse flex items-center gap-1">
+                  <div className="w-1 h-1 rounded-full bg-primary-500"></div> AI Enhanced
+                </span>
+              )}
+            </label>
+            <input 
+              name="description" 
+              value={form.description} 
+              onChange={handleChange}
+              onBlur={(e) => handleAIDetection(e.target.value)}
+              placeholder='e.g. "bought pizza"' 
+              className="input focus:ring-primary-500/20" 
+            />
           </div>
 
           {/* Category */}
           <div>
-            <label className="label">Category</label>
+            <label className="label flex justify-between items-center text-xs">
+              Category
+              {aiConfidence && (
+                <span className={`text-[10px] font-black uppercase px-1.5 py-0.5 rounded ${
+                  aiConfidence > 0.8 ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'
+                }`}>
+                  {Math.round(aiConfidence * 100)}% Match
+                </span>
+              )}
+            </label>
             <select name="category" value={form.category} onChange={handleChange} className="input">
               {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>

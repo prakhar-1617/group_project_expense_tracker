@@ -9,8 +9,18 @@ export default function Login() {
   const [email, setEmail] = useState('demo@fintrack.app');
   const [password, setPassword] = useState('demo1234');
   const [isForgotPassword, setIsForgotPassword] = useState(false);
-  const { login, loading } = useAuth();
+  const { login, loginAsGuest, loading } = useAuth();
   const navigate = useNavigate();
+
+  const handleGuestLogin = async () => {
+    try {
+      await loginAsGuest();
+      toast.success('Welcome, Guest!');
+      navigate('/dashboard');
+    } catch (err) {
+      toast.error('Failed to login as guest');
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,7 +34,12 @@ export default function Login() {
       toast.success('Welcome back!');
       navigate('/dashboard');
     } catch (err) {
-      toast.error('Failed to login');
+      if (err.response?.status === 403) {
+        toast.error('Verification required before login');
+        navigate(`/verify?email=${email}`);
+      } else {
+        toast.error(err.response?.data?.message || 'Failed to login');
+      }
     }
   };
 
@@ -122,6 +137,19 @@ export default function Login() {
               <>{isForgotPassword ? 'Send Reset Link' : 'Sign In'} <ArrowRight className="w-5 h-5" /></>
             )}
           </motion.button>
+
+          {!isForgotPassword && (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              type="button"
+              onClick={handleGuestLogin}
+              disabled={loading}
+              className="w-full py-3.5 text-lg flex justify-center items-center gap-2 mt-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
+            >
+              Continue as Guest
+            </motion.button>
+          )}
         </form>
 
         {isForgotPassword ? (

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Transaction = require('../models/Transaction');
 const { protect } = require('../middleware/auth');
+const analyticsService = require('../services/analyticsService');
 
 // @route   GET /api/transactions
 router.get('/', protect, async (req, res) => {
@@ -90,71 +91,21 @@ router.delete('/:id', protect, async (req, res) => {
 // @route   GET /api/transactions/summary
 router.get('/summary', protect, async (req, res) => {
   try {
-    const { month, year } = req.query;
-    const now = new Date();
-    const targetMonth = parseInt(month || now.getMonth() + 1);
-    const targetYear = parseInt(year || now.getFullYear());
-
-    const startDate = new Date(targetYear, targetMonth - 1, 1);
-    const endDate = new Date(targetYear, targetMonth, 0, 23, 59, 59);
-
-    const transactions = await Transaction.find({
-      user: req.user._id,
-      date: { $gte: startDate, $lte: endDate },
-    });
-
-    const totalIncome = transactions.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-    const totalExpense = transactions.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
-
-    // Category breakdown
-    const categoryBreakdown = {};
-    transactions
-      .filter((t) => t.type === 'expense')
-      .forEach((t) => {
-        categoryBreakdown[t.category] = (categoryBreakdown[t.category] || 0) + t.amount;
-      });
-
-    res.json({
-      totalIncome,
-      totalExpense,
-      balance: totalIncome - totalExpense,
-      categoryBreakdown,
-      transactionCount: transactions.length,
-    });
+    const { range } = req.query;
+    const result = await analyticsService.getSummary(req.user._id, range);
+    res.json(result);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
 // @route   GET /api/transactions/monthly-trend
 router.get('/monthly-trend', protect, async (req, res) => {
   try {
-    const months = [];
-    const now = new Date();
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      months.push({ year: d.getFullYear(), month: d.getMonth() + 1 });
-    }
-
-    const trends = await Promise.all(
-      months.map(async ({ year, month }) => {
-        const start = new Date(year, month - 1, 1);
-        const end = new Date(year, month, 0, 23, 59, 59);
-        const txns = await Transaction.find({ user: req.user._id, date: { $gte: start, $lte: end } });
-        const income = txns.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-        const expense = txns.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
-        return {
-          month: `${year}-${String(month).padStart(2, '0')}`,
-          label: new Date(year, month - 1).toLocaleString('default', { month: 'short', year: '2-digit' }),
-          income,
-          expense,
-        };
-      })
-    );
-
-    res.json(trends);
+    const result = await analyticsService.getMonthlyTrend(req.user._id);
+    res.json(result);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 

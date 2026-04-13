@@ -20,6 +20,27 @@ const userSchema = new mongoose.Schema(
       required: [true, 'Password is required'],
       minlength: 6,
     },
+    phoneNumber: {
+      type: String,
+      trim: true,
+    },
+    emailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    phoneVerified: {
+      type: Boolean,
+      default: false,
+    },
+    otp: {
+      code: String,
+      expiry: Date,
+      attempts: {
+        type: Number,
+        default: 0,
+      },
+      lastSent: Date,
+    },
     monthlyBudget: {
       type: Number,
       default: 0,
@@ -31,6 +52,10 @@ const userSchema = new mongoose.Schema(
     avatar: {
       type: String,
       default: '',
+    },
+    isGuest: {
+      type: Boolean,
+      default: false,
     },
     contacts: [{
       name: String,

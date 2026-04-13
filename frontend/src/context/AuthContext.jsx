@@ -24,6 +24,26 @@ export function AuthProvider({ children }) {
     fetchUser();
   }, []);
 
+  useEffect(() => {
+    if (user?.isGuest) {
+      const handleUnload = () => {
+        const token = localStorage.getItem('token');
+        if (token) {
+          const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+          fetch(`${baseURL}/auth/me`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            },
+            keepalive: true
+          }).catch(console.error); // Ignore errors during unload
+        }
+      };
+      window.addEventListener('beforeunload', handleUnload);
+      return () => window.removeEventListener('beforeunload', handleUnload);
+    }
+  }, [user]);
+
   const login = async (email, password) => {
     setLoading(true);
     try {
@@ -36,10 +56,10 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const register = async (name, email, password) => {
+  const loginAsGuest = async () => {
     setLoading(true);
     try {
-      const res = await API.post('/auth/register', { name, email, password });
+      const res = await API.post('/auth/guest-login');
       localStorage.setItem('token', res.data.token);
       setUser(res.data);
       return res.data;
@@ -48,7 +68,50 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const logout = () => {
+  const register = async (name, email, password, phoneNumber) => {
+    setLoading(true);
+    try {
+      const res = await API.post('/auth/register', { name, email, password, phoneNumber });
+      // If verification is required, we might not set token yet depending on backend
+      // But we'll follow backend response
+      if (res.data.token) localStorage.setItem('token', res.data.token);
+      setUser(res.data);
+      return res.data;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const sendOTP = async (email, type) => {
+    try {
+      const res = await API.post('/auth/send-otp', { email, type });
+      return res.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  };
+
+  const verifyOTP = async (email, code, type) => {
+    try {
+      const res = await API.post('/auth/verify-otp', { email, code, type });
+      if (res.data.token) {
+        localStorage.setItem('token', res.data.token);
+        setUser(res.data.user);
+      }
+      return res.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  };
+
+  const logout = async () => {
+    if (user?.isGuest) {
+      try {
+        await API.delete('/auth/me');
+      } catch (error) {
+        console.error("Failed to delete guest account during logout", error);
+      }
+    }
     localStorage.removeItem('token');
     setUser(null);
   };
@@ -66,7 +129,7 @@ export function AuthProvider({ children }) {
 
   // Provide everything. loading acts as global auth loading state
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading, updateUser }}>
+    <AuthContext.Provider value={{ user, login, loginAsGuest, register, logout, loading, updateUser, sendOTP, verifyOTP }}>
       {!loading && children}
     </AuthContext.Provider>
   );

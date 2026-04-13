@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { motion } from 'framer-motion';
 import {
-  LayoutDashboard, ArrowLeftRight, BarChart3, Wallet,
+  LayoutDashboard, ArrowLeftRight, BarChart3, Wallet, Users2,
   Sun, Moon, LogOut, User, TrendingUp,
 } from 'lucide-react';
 
@@ -12,6 +12,7 @@ const navItems = [
   { to: '/transactions', icon: ArrowLeftRight, label: 'Transactions' },
   { to: '/analytics', icon: BarChart3, label: 'Analytics' },
   { to: '/budget', icon: Wallet, label: 'Budget' },
+  { to: '/split', icon: Users2, label: 'Split Expenses' },
 ];
 
 export default function Sidebar() {

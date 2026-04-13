@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { SplitProvider } from './context/SplitContext';
 import { Toaster } from 'react-hot-toast';
 
 // Layout & Components
@@ -14,11 +15,21 @@ import Dashboard from './pages/Dashboard';
 import Transactions from './pages/Transactions';
 import Analytics from './pages/Analytics';
 import Budget from './pages/Budget';
+import SplitExpenses from './pages/SplitExpenses';
+import Verification from './pages/Verification';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
   if (loading) return null;
-  return user ? children : <Navigate to="/login" />;
+  
+  if (!user) return <Navigate to="/login" />;
+
+  // Force verification for registered users (bypass for guests)
+  if (!user.isGuest && (!user.emailVerified || !user.phoneVerified)) {
+    return <Navigate to={`/verify?email=${user.email}`} />;
+  }
+
+  return children;
 };
 
 const AppLayout = ({ children }) => {
@@ -41,11 +52,13 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
+        <SplitProvider>
         <Router>
           <Toaster position="top-right" />
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/verify" element={<Verification />} />
             
             <Route path="/" element={<Navigate to="/dashboard" />} />
             
@@ -61,8 +74,12 @@ function App() {
             <Route path="/budget" element={
               <PrivateRoute><AppLayout><Budget /></AppLayout></PrivateRoute>
             } />
+            <Route path="/split" element={
+              <PrivateRoute><AppLayout><SplitExpenses /></AppLayout></PrivateRoute>
+            } />
           </Routes>
         </Router>
+        </SplitProvider>
       </AuthProvider>
     </ThemeProvider>
   );

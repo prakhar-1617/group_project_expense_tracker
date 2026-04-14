@@ -30,8 +30,14 @@ export default function Login() {
       return;
     }
     try {
-      await login(email, password);
-      toast.success('Welcome back!');
+      const data = await login(email, password);
+      if (data.notifications?.length) {
+        toast(data.notifications.join(' '), {
+          icon: '⚠️',
+        });
+      } else {
+        toast.success('Welcome back!');
+      }
       navigate('/dashboard');
     } catch (err) {
       if (err.response?.status === 403) {

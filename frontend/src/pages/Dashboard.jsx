@@ -70,7 +70,7 @@ export default function Dashboard() {
     );
   }
 
-  const { totalIncome = 0, totalExpense = 0, balance = 0 } = summary || {};
+  const { income: totalIncome = 0, expense: totalExpense = 0, balance = 0 } = summary?.stats || {};
   const { monthlyBudget = 0 } = budget || {};
 
   return (

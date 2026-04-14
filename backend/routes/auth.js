@@ -256,7 +256,7 @@ router.post('/guest-login', async (req, res) => {
       email: `guest-${randomSuffix}@fintrack.app`,
       password: `guest-${randomSuffix}`,
       isGuest: true,
-      monthlyBudget: 5000,
+      monthlyBudget: 0,
     });
     res.status(201).json({
       _id: guestUser._id,

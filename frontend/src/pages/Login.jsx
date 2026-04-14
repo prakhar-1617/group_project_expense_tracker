@@ -6,8 +6,8 @@ import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
 
 export default function Login() {
-  const [email, setEmail] = useState('demo@fintrack.app');
-  const [password, setPassword] = useState('demo1234');
+  const [email, setEmail] = useState('prakharkumarcse@gmail.com');
+  const [password, setPassword] = useState('12345678');
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const { login, loginAsGuest, loading } = useAuth();
   const navigate = useNavigate();

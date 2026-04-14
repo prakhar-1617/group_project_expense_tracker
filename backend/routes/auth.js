@@ -162,16 +162,17 @@ router.post('/verify-otp', async (req, res) => {
       message: `${type} verified successfully`,
       emailVerified: user.emailVerified,
       phoneVerified: user.phoneVerified,
-      // If both verified, return token for login
       token: (user.emailVerified && user.phoneVerified) ? generateToken(user._id) : undefined,
-      user: (user.emailVerified && user.phoneVerified) ? {
+      user: {
         _id: user._id,
         name: user.name,
         email: user.email,
         phoneNumber: user.phoneNumber,
         emailVerified: user.emailVerified,
         phoneVerified: user.phoneVerified,
-      } : undefined
+        monthlyBudget: user.monthlyBudget,
+        isGuest: user.isGuest,
+      }
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

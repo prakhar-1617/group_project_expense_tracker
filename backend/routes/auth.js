@@ -6,6 +6,7 @@ const User = require('../models/User');
 const Transaction = require('../models/Transaction');
 const Split = require('../models/Split');
 const { protect } = require('../middleware/auth');
+const { sendOTPEmail } = require('../services/emailService');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
@@ -117,12 +118,18 @@ router.post(
 // @desc    Generate and "send" OTP (simulated via console)
 router.post('/send-otp', async (req, res) => {
   const { email, type } = req.body; // type: 'email' or 'phone'
+  if (!email || !type) {
+    return res.status(400).json({ message: 'Email and type are required' });
+  }
   try {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: 'User not found' });
 
+    // Null-safe access — otp sub-doc may not exist on brand-new accounts
+    const existingOtp = user.otp || {};
+
     // 30s cooldown check
-    if (user.otp.lastSent && (new Date() - user.otp.lastSent < 30000)) {
+    if (existingOtp.lastSent && (new Date() - new Date(existingOtp.lastSent) < 30000)) {
       return res.status(429).json({ message: 'Please wait 30 seconds before requesting a new OTP' });
     }
 
@@ -131,14 +138,18 @@ router.post('/send-otp', async (req, res) => {
       code: otpCode,
       expiry: new Date(Date.now() + 5 * 60 * 1000), // 5 min expiry
       attempts: 0,
-      lastSent: new Date()
+      lastSent: new Date(),
     };
     await user.save();
 
-    console.log(`\n--- [SIMULATION] OTP for ${email} (${type}): ${otpCode} ---\n`);
+    // Send OTP — real Gmail if credentials exist, console fallback otherwise
+    // For 'email' type: send to user's email
+    // For 'phone' type: also send to email (no SMS provider configured yet)
+    await sendOTPEmail(email, otpCode, type);
 
     res.json({ message: `OTP sent successfully to your ${type}` });
   } catch (error) {
+    console.error('send-otp error:', error);
     res.status(500).json({ message: error.message });
   }
 });
@@ -147,32 +158,36 @@ router.post('/send-otp', async (req, res) => {
 // @desc    Verify OTP and update user verification status
 router.post('/verify-otp', async (req, res) => {
   const { email, code, type } = req.body;
+  if (!email || !code || !type) {
+    return res.status(400).json({ message: 'Email, code, and type are required' });
+  }
   try {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    if (!user.otp.code || user.otp.expiry < new Date()) {
+    // Null-safe check — otp sub-doc may not exist on fresh accounts
+    const otp = user.otp || {};
+
+    if (!otp.code || !otp.expiry || new Date(otp.expiry) < new Date()) {
       return res.status(400).json({ message: 'OTP expired or not found. Please request a new one.' });
     }
 
-    if (user.otp.attempts >= 3) {
+    if ((otp.attempts || 0) >= 3) {
       return res.status(400).json({ message: 'Max attempts reached. Please request a new OTP.' });
     }
 
-    if (user.otp.code !== code) {
-      user.otp.attempts += 1;
+    if (otp.code !== code) {
+      user.otp.attempts = (otp.attempts || 0) + 1;
       await user.save();
       return res.status(400).json({ message: `Invalid OTP. ${3 - user.otp.attempts} attempts remaining.` });
     }
 
-    // Success
+    // Success — mark verified
     if (type === 'email') user.emailVerified = true;
     if (type === 'phone') user.phoneVerified = true;
 
-    // Clear OTP logic
-    user.otp.code = undefined;
-    user.otp.expiry = undefined;
-    user.otp.attempts = 0;
+    // Clear OTP after successful verification
+    user.otp = { code: undefined, expiry: undefined, attempts: 0, lastSent: otp.lastSent };
 
     await user.save();
 

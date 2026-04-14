@@ -17,6 +17,7 @@ import Analytics from './pages/Analytics';
 import Budget from './pages/Budget';
 import SplitExpenses from './pages/SplitExpenses';
 import Verification from './pages/Verification';
+import LandingPage from './landing/LandingPage';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -60,7 +61,7 @@ function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/verify" element={<Verification />} />
             
-            <Route path="/" element={<Navigate to="/dashboard" />} />
+            <Route path="/" element={<LandingPage />} />
             
             <Route path="/dashboard" element={
               <PrivateRoute><AppLayout><Dashboard /></AppLayout></PrivateRoute>

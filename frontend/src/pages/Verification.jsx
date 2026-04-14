@@ -12,22 +12,38 @@ export default function Verification() {
   const queryParams = new URLSearchParams(location.search);
   const email = queryParams.get('email') || user?.email;
 
-  const [step, setStep] = useState('email'); // 'email' or 'phone' or 'success'
+  const [step, setStep] = useState(() => {
+    if (user?.emailVerified && !user?.phoneVerified) return 'phone';
+    if (user?.emailVerified && user?.phoneVerified) return 'success';
+    return 'email';
+  });
   const [otp, setOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [attempts, setAttempts] = useState(3);
 
+  // Auto-redirect if everything is verified
+  useEffect(() => {
+    if (user?.emailVerified && user?.phoneVerified) {
+      setStep('success');
+      const timer = setTimeout(() => {
+        navigate('/dashboard');
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [user, navigate]);
+
   useEffect(() => {
     if (!email) {
       toast.error('Email not found. Please login again.');
       navigate('/login');
-    } else {
-      // Auto-send first OTP on mount
+    } else if (step !== 'success') {
+      // Auto-send first OTP on mount if not already sent/verified
+      // We only send if the user isn't already verified for this step
       handleSendOTP();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [email, navigate]);
+  }, [email, navigate]); // Removed handleSendOTP from deps to prevent loops
 
   useEffect(() => {
     let timer;
@@ -41,6 +57,17 @@ export default function Verification() {
 
   const handleSendOTP = async () => {
     if (resendCooldown > 0) return;
+    
+    // Safety check: if user already has this factor verified, skip sending and move to next step
+    if (step === 'email' && user?.emailVerified) {
+      setStep('phone');
+      return;
+    }
+    if (step === 'phone' && user?.phoneVerified) {
+      setStep('success');
+      return;
+    }
+
     setIsLoading(true);
     try {
       await sendOTP(email, step);
@@ -48,7 +75,12 @@ export default function Verification() {
       setResendCooldown(30);
       setAttempts(3);
     } catch (err) {
-      toast.error(err.message || 'Failed to send OTP');
+      // Don't toast 429 errors silently if it was an auto-send, or handle gracefully
+      if (err.status !== 429) {
+        toast.error(err.message || 'Failed to send OTP');
+      } else {
+        console.log('OTP cooldown active');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -62,20 +94,13 @@ export default function Verification() {
     }
     setIsLoading(true);
     try {
-      const res = await verifyOTP(email, otp, step);
+      await verifyOTP(email, otp, step);
       toast.success(`${step === 'email' ? 'Email' : 'Phone'} verified!`);
       setOtp('');
       
+      // Step state will be updated by the useEffect checking 'user'
       if (step === 'email') {
         setStep('phone');
-      } else {
-        // If phone was the last step
-        if (res.token) {
-          toast.success('All set! Welcome to FinTrack.');
-          navigate('/dashboard');
-        } else {
-          setStep('success');
-        }
       }
     } catch (err) {
       toast.error(err.message || 'Invalid OTP');

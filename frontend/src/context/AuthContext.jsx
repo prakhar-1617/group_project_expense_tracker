@@ -94,9 +94,11 @@ export function AuthProvider({ children }) {
   const verifyOTP = async (email, code, type) => {
     try {
       const res = await API.post('/auth/verify-otp', { email, code, type });
+      if (res.data.user) {
+        setUser(res.data.user);
+      }
       if (res.data.token) {
         localStorage.setItem('token', res.data.token);
-        setUser(res.data.user);
       }
       return res.data;
     } catch (error) {

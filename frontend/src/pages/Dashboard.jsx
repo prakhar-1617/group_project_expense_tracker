@@ -26,6 +26,9 @@ export default function Dashboard() {
   const [note, setNote] = useState('');
   const [loading, setLoading] = useState(true);
 
+  const noTransactions = summary?.stats?.income === 0 && summary?.stats?.expense === 0;
+  const showDashboardReminder = !loading && (noTransactions || (budget?.monthlyBudget || 0) === 0);
+
   useEffect(() => {
     const savedNote = localStorage.getItem('dashboardNotepad');
     if (savedNote) setNote(savedNote);
@@ -91,6 +94,20 @@ export default function Dashboard() {
           </Link>
         </motion.div>
       </motion.div>
+
+      {showDashboardReminder && (
+        <motion.div variants={itemVariants} className="card border border-amber-200/80 bg-amber-50/80 dark:border-amber-500/30 dark:bg-amber-950/20 p-6">
+          <div className="flex flex-col gap-2">
+            <h2 className="text-xl font-bold text-amber-950 dark:text-amber-200">Reminder</h2>
+            {noTransactions && (
+              <p className="text-sm text-slate-700 dark:text-slate-300">You have not added any transactions yet. Add your first expense or income to begin tracking your finances.</p>
+            )}
+            {(budget?.monthlyBudget || 0) === 0 && (
+              <p className="text-sm text-slate-700 dark:text-slate-300">Set a monthly budget to unlock spending insights and make your dashboard more useful.</p>
+            )}
+          </div>
+        </motion.div>
+      )}
 
       <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard title="Total Balance"   value={`₹${balance.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`}      icon={<Wallet />}      color="indigo" />

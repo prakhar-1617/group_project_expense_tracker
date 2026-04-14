@@ -11,6 +11,21 @@ const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
 
+const buildUserNotifications = async (userId, monthlyBudget) => {
+  const notifications = [];
+  const expenseCount = await Transaction.countDocuments({ user: userId });
+
+  if (expenseCount === 0) {
+    notifications.push('You have not added any expenses yet. Add your first transaction to start tracking your spending.');
+  }
+
+  if (!monthlyBudget || monthlyBudget === 0) {
+    notifications.push('Set a monthly budget to get better spending insights and alerts.');
+  }
+
+  return notifications;
+};
+
 // @route   POST /api/auth/register
 router.post(
   '/register',
@@ -76,6 +91,8 @@ router.post(
           });
         }
 
+        const notifications = await buildUserNotifications(user._id, user.monthlyBudget);
+
         res.json({
           _id: user._id,
           name: user.name,
@@ -85,6 +102,7 @@ router.post(
           phoneVerified: user.phoneVerified,
           monthlyBudget: user.monthlyBudget,
           token: generateToken(user._id),
+          notifications,
         });
       } else {
         res.status(401).json({ message: 'Invalid email or password' });
@@ -181,7 +199,8 @@ router.post('/verify-otp', async (req, res) => {
 
 // @route   GET /api/auth/me
 router.get('/me', protect, async (req, res) => {
-  res.json(req.user);
+  const notifications = await buildUserNotifications(req.user._id, req.user.monthlyBudget);
+  res.json({ ...req.user.toObject(), notifications });
 });
 
 // @route   PUT /api/auth/profile

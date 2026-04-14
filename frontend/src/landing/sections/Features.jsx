@@ -43,10 +43,8 @@ export default function Features() {
       const scrollTl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
-          start: 'top top',
-          end: '+=130%',
-          pin: true,
-          scrub: 0.6,
+          start: 'top 80%',
+          toggleActions: 'play none none none',
         },
       });
 
@@ -79,32 +77,7 @@ export default function Features() {
 
       // Phase 2: SETTLE (30-70%) - Hold positions
 
-      // Phase 3: EXIT (70-100%)
-      scrollTl
-        .fromTo(
-          cards[0],
-          { x: 0, rotateY: 0, opacity: 1 },
-          { x: '-30vw', rotateY: 20, opacity: 0, ease: 'power2.in' },
-          0.7
-        )
-        .fromTo(
-          cards[1],
-          { y: 0, scale: 1, opacity: 1 },
-          { y: '-18vh', scale: 0.92, opacity: 0, ease: 'power2.in' },
-          0.7
-        )
-        .fromTo(
-          cards[2],
-          { x: 0, rotateY: 0, opacity: 1 },
-          { x: '30vw', rotateY: -20, opacity: 0, ease: 'power2.in' },
-          0.7
-        )
-        .fromTo(
-          heading,
-          { opacity: 1 },
-          { opacity: 0, ease: 'power2.in' },
-          0.75
-        );
+      
     }, section);
 
     return () => ctx.revert();

@@ -68,10 +68,8 @@ export default function Hero() {
       const scrollTl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
-          start: 'top top',
-          end: '+=130%',
-          pin: true,
-          scrub: 0.6,
+          start: 'top 80%',
+          toggleActions: 'play none none none',
           onLeaveBack: () => {
             // Reset all elements when scrolling back to top
             gsap.set([card, phone, text, cta, micro], {
@@ -88,38 +86,7 @@ export default function Hero() {
 
       // Phase 1: ENTRANCE (0-30%) - Hold settle state
       // Phase 2: SETTLE (30-70%) - Static
-      // Phase 3: EXIT (70-100%)
-      scrollTl
-        .fromTo(
-          card,
-          { y: 0, scale: 1, rotateX: 0, opacity: 1 },
-          { y: '-22vh', scale: 0.92, rotateX: -8, opacity: 0, ease: 'power2.in' },
-          0.7
-        )
-        .fromTo(
-          phone,
-          { x: 0, rotateZ: 0, opacity: 1 },
-          { x: '18vw', rotateZ: 10, opacity: 0, ease: 'power2.in' },
-          0.7
-        )
-        .fromTo(
-          text,
-          { x: 0, opacity: 1 },
-          { x: '-10vw', opacity: 0, ease: 'power2.in' },
-          0.7
-        )
-        .fromTo(
-          cta,
-          { x: 0, opacity: 1 },
-          { x: '-8vw', opacity: 0, ease: 'power2.in' },
-          0.72
-        )
-        .fromTo(
-          micro,
-          { y: 0, opacity: 1 },
-          { y: 20, opacity: 0, ease: 'power2.in' },
-          0.75
-        );
+      
     }, section);
 
     return () => ctx.revert();

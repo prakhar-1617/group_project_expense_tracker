@@ -26,10 +26,8 @@ export default function CTA() {
       const scrollTl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
-          start: 'top top',
-          end: '+=130%',
-          pin: true,
-          scrub: 0.6,
+          start: 'top 80%',
+          toggleActions: 'play none none none',
         },
       });
 
@@ -56,20 +54,7 @@ export default function CTA() {
 
       // Phase 2: SETTLE (30-70%) - Hold
 
-      // Phase 3: EXIT (70-100%)
-      scrollTl
-        .fromTo(
-          card,
-          { y: 0, opacity: 1 },
-          { y: '-12vh', opacity: 0, ease: 'power2.in' },
-          0.7
-        )
-        .fromTo(
-          phone,
-          { x: 0, opacity: 1 },
-          { x: '12vw', opacity: 0, ease: 'power2.in' },
-          0.7
-        );
+      
     }, section);
 
     return () => ctx.revert();

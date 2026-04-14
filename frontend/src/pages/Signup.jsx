@@ -63,7 +63,7 @@ export default function Signup() {
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-emerald-500">
                 <User className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
               </div>
-              <input type="text" className="input pl-11 py-3 text-base shadow-sm bg-white/60 dark:bg-dark-bg/60 border-slate-200/80 dark:border-dark-border/80 focus:ring-emerald-500/50 focus:border-emerald-500" placeholder="John Doe"
+              <input type="text" className="input pl-11 py-3 text-base shadow-sm bg-white/60 dark:bg-dark-bg/60 border-slate-200/80 dark:border-dark-border/80 focus:ring-emerald-500/50 focus:border-emerald-500" placeholder="@prakharkumar"
                 value={name} onChange={(e) => setName(e.target.value)} required />
             </div>
           </div>

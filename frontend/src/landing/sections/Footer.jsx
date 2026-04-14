@@ -68,9 +68,14 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-white/40">
-            © 2026 FinTrack. All rights reserved.
-          </p>
+          <div className="text-center md:text-left">
+            <p className="text-sm text-white/40 mb-1">
+              © 2026 FinTrack. All rights reserved.
+            </p>
+            <p className="text-xs font-medium text-[#A87FF3]">
+              Designed & Developed by @prakharkumar
+            </p>
+          </div>
           <div className="flex items-center gap-6">
             <a href="#" className="text-sm text-white/40 hover:text-white transition-colors">
               Privacy Policy

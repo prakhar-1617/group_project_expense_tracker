@@ -99,102 +99,14 @@ export default function Insights() {
           style={{ perspective: '1000px' }}
         >
           {/* Chart Area */}
-          <div className="mb-6">
-            <h4 className="text-sm font-medium text-white/50 mb-4 uppercase tracking-wider">
-              Spending Trends
-            </h4>
-            <div className="relative h-[180px] lg:h-[220px]">
-              <svg
-                viewBox="0 0 600 200"
-                className="w-full h-full"
-                preserveAspectRatio="none"
-              >
-                {/* Grid lines */}
-                {[0, 1, 2, 3].map((i) => (
-                  <line
-                    key={i}
-                    x1="0"
-                    y1={50 * i + 25}
-                    x2="600"
-                    y2={50 * i + 25}
-                    stroke="rgba(255,255,255,0.05)"
-                    strokeWidth="1"
-                  />
-                ))}
-                
-                {/* Area gradient */}
-                <defs>
-                  <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#A87FF3" stopOpacity="0.3" />
-                    <stop offset="100%" stopColor="#A87FF3" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-                
-                {/* Area fill */}
-                <path
-                  d="M0,150 Q75,120 150,130 T300,80 T450,100 T600,60 L600,200 L0,200 Z"
-                  fill="url(#areaGradient)"
-                />
-                
-                {/* Line */}
-                <path
-                  ref={chartRef}
-                  d="M0,150 Q75,120 150,130 T300,80 T450,100 T600,60"
-                  fill="none"
-                  stroke="#A87FF3"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                />
-                
-                {/* Data points */}
-                {[
-                  [0, 150],
-                  [150, 130],
-                  [300, 80],
-                  [450, 100],
-                  [600, 60],
-                ].map(([x, y], i) => (
-                  <circle
-                    key={i}
-                    cx={x}
-                    cy={y}
-                    r="5"
-                    fill="#A87FF3"
-                    stroke="#0B0C10"
-                    strokeWidth="2"
-                  />
-                ))}
-              </svg>
-              
-              {/* X-axis labels */}
-              <div className="flex justify-between mt-2 text-xs text-white/40">
-                <span>JAN</span>
-                <span>MAR</span>
-                <span>JUN</span>
-                <span>SEP</span>
-                <span>DEC</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Metrics */}
-          <div className="grid grid-cols-3 gap-4">
-            {metrics.map((metric, index) => (
-              <div
-                key={metric.label}
-                ref={(el) => { metricsRef.current[index] = el; }}
-                className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 hover:border-[#A87FF3]/30 transition-colors"
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <metric.icon className="w-4 h-4 text-[#A87FF3]" />
-                  <span className="text-xs text-white/50">{metric.label}</span>
-                </div>
-                <p className="text-xl lg:text-2xl font-semibold text-white mb-1">
-                  {metric.value}
-                </p>
-                <span className="text-xs text-green-400">{metric.change}</span>
-              </div>
-            ))}
+          <div className="relative group p-1 bg-white/5 rounded-[32px] overflow-hidden analytics-image-container">
+            <img 
+              src="/landing/analytics.png" 
+              alt="FinTrack Analytics Insights"
+              className="w-full h-auto rounded-[28px] shadow-2xl transition-transform duration-700 group-hover:scale-[1.01]"
+            />
+            {/* Subtle gloss overlay to make it look embedded in the dark UI */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-white/5 via-transparent to-white/10 pointer-events-none" />
           </div>
         </div>
 

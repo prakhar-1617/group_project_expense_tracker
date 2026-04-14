@@ -23,7 +23,7 @@ export default function SplitExpenseModal({ onClose }) {
   });
 
   const [participants, setParticipants] = useState([
-    { name: 'You', email: 'you@demo.com', share: 0, settled: true },
+    { name: 'You', email: 'prakharkumarcse@gmail.com', share: 0, settled: true },
   ]);
 
   const [showContacts, setShowContacts] = useState(false);
@@ -164,7 +164,7 @@ export default function SplitExpenseModal({ onClose }) {
             <label className="label">Paid By</label>
             <select name="paidBy" value={form.paidBy} onChange={handleFormChange} className="input">
               <option value="You">You</option>
-              {participants.filter((p) => p.email !== 'you@demo.com').map((p) => (
+              {participants.filter((p) => p.email !== 'prakharkumarcse@gmail.com').map((p) => (
                 <option key={p.email} value={p.name}>{p.name}</option>
               ))}
             </select>

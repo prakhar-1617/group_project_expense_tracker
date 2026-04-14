@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Mail, Phone, CheckCircle2, ArrowRight, Loader2, RefreshCcw, ShieldCheck } from 'lucide-react';
+import { Mail, Phone, CheckCircle2, ArrowRight, Loader2, RefreshCcw, ShieldCheck, Terminal } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -12,15 +12,18 @@ export default function Verification() {
   const queryParams = new URLSearchParams(location.search);
   const email = queryParams.get('email') || user?.email;
 
-  const [step, setStep] = useState(() => {
-    if (user?.emailVerified && !user?.phoneVerified) return 'phone';
+  // Determine the initial step based on user verification state
+  const getInitialStep = () => {
     if (user?.emailVerified && user?.phoneVerified) return 'success';
+    if (user?.emailVerified && !user?.phoneVerified) return 'phone';
     return 'email';
-  });
+  };
+
+  const [step, setStep] = useState(getInitialStep);
   const [otp, setOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
-  const [attempts, setAttempts] = useState(3);
+  const [otpSent, setOtpSent] = useState(false);
 
   // Auto-redirect if everything is verified
   useEffect(() => {
@@ -33,18 +36,7 @@ export default function Verification() {
     }
   }, [user, navigate]);
 
-  useEffect(() => {
-    if (!email) {
-      toast.error('Email not found. Please login again.');
-      navigate('/login');
-    } else if (step !== 'success') {
-      // Auto-send first OTP on mount if not already sent/verified
-      // We only send if the user isn't already verified for this step
-      handleSendOTP();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [email, navigate]); // Removed handleSendOTP from deps to prevent loops
-
+  // Cooldown countdown timer
   useEffect(() => {
     let timer;
     if (resendCooldown > 0) {
@@ -55,159 +47,260 @@ export default function Verification() {
     return () => clearInterval(timer);
   }, [resendCooldown]);
 
-  const handleSendOTP = async () => {
+  // useCallback so the function identity is stable and useEffect can safely depend on `step`
+  const handleSendOTP = useCallback(async (currentStep) => {
+    const activeStep = currentStep || step;
     if (resendCooldown > 0) return;
-    
-    // Safety check: if user already has this factor verified, skip sending and move to next step
-    if (step === 'email' && user?.emailVerified) {
+
+    // Skip if already verified
+    if (activeStep === 'email' && user?.emailVerified) {
       setStep('phone');
       return;
     }
-    if (step === 'phone' && user?.phoneVerified) {
+    if (activeStep === 'phone' && user?.phoneVerified) {
       setStep('success');
+      return;
+    }
+
+    if (!email) {
+      toast.error('Email not found. Please login again.');
+      navigate('/login');
       return;
     }
 
     setIsLoading(true);
     try {
-      await sendOTP(email, step);
-      toast.success(`OTP sent to your ${step}!`);
+      await sendOTP(email, activeStep);
+      setOtpSent(true);
       setResendCooldown(30);
-      setAttempts(3);
+      toast.success(
+        activeStep === 'email'
+          ? `OTP sent! Check your backend console/terminal.`
+          : `OTP sent! Check your backend console/terminal.`,
+        { duration: 5000 }
+      );
     } catch (err) {
-      // Don't toast 429 errors silently if it was an auto-send, or handle gracefully
-      if (err.status !== 429) {
-        toast.error(err.message || 'Failed to send OTP');
+      if (err?.status === 429 || err?.message?.includes('30 seconds')) {
+        toast('Please wait 30 seconds before requesting a new OTP.', { icon: '⏳' });
+        setResendCooldown(30);
       } else {
-        console.log('OTP cooldown active');
+        toast.error(err?.message || 'Failed to send OTP. Is the backend running?');
       }
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [step, resendCooldown, user, email, sendOTP, navigate]);
+
+  // Auto-send OTP on mount / step change only if not verified yet
+  useEffect(() => {
+    if (!email) {
+      toast.error('Email not found. Please login again.');
+      navigate('/login');
+      return;
+    }
+    if (step !== 'success') {
+      handleSendOTP(step);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]); // Only re-run when step changes
 
   const handleVerify = async (e) => {
     e.preventDefault();
     if (otp.length !== 6) {
-      toast.error('Please enter 6-digit OTP');
+      toast.error('Please enter the 6-digit OTP');
       return;
     }
     setIsLoading(true);
     try {
       await verifyOTP(email, otp, step);
-      toast.success(`${step === 'email' ? 'Email' : 'Phone'} verified!`);
+      toast.success(`${step === 'email' ? 'Email' : 'Phone'} verified successfully! ✅`);
       setOtp('');
-      
-      // Step state will be updated by the useEffect checking 'user'
+      setOtpSent(false);
+
       if (step === 'email') {
         setStep('phone');
       }
+      // If phone verified, the useEffect watching `user` will handle redirect
     } catch (err) {
-      toast.error(err.message || 'Invalid OTP');
+      toast.error(err?.message || 'Invalid OTP. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   const variants = {
-    enter: { opacity: 0, x: 20 },
+    enter: { opacity: 0, x: 30 },
     center: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: -20 }
+    exit: { opacity: 0, x: -30 }
   };
+
+  const stepInfo = {
+    email: {
+      icon: <Mail className="text-white w-8 h-8" />,
+      title: 'Email Verification',
+      subtitle: `We've logged a 6-digit OTP for ${email}`,
+      hint: 'Look for the OTP in your backend server console/terminal.',
+    },
+    phone: {
+      icon: <Phone className="text-white w-8 h-8" />,
+      title: 'Phone Verification',
+      subtitle: `Now verifying the phone linked to your account`,
+      hint: 'Look for the OTP in your backend server console/terminal.',
+    },
+    success: {
+      icon: <CheckCircle2 className="text-white w-8 h-8" />,
+      title: 'All Verified!',
+      subtitle: 'Your account is fully secure.',
+      hint: '',
+    },
+  };
+
+  const current = stepInfo[step];
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-[#050505] transition-colors relative overflow-hidden">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-blue-500/20 to-indigo-500/20 rounded-full blur-[100px] opacity-50 pointer-events-none"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-blue-500/20 to-indigo-500/20 rounded-full blur-[100px] opacity-50 pointer-events-none" />
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         className="w-full max-w-md card glass border-white/40 dark:border-white/10 z-10 p-8 shadow-2xl relative overflow-hidden"
       >
+        {/* Background icon */}
         <div className="absolute top-0 right-0 p-4 opacity-10">
           <ShieldCheck size={120} />
         </div>
 
-        <div className="text-center mb-8 relative z-10">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg mx-auto mb-4">
-            {step === 'email' ? <Mail className="text-white w-8 h-8" /> : step === 'phone' ? <Phone className="text-white w-8 h-8" /> : <CheckCircle2 className="text-white w-8 h-8" />}
+        {/* Progress steps */}
+        {step !== 'success' && (
+          <div className="flex items-center justify-center gap-3 mb-8 relative z-10">
+            {['email', 'phone'].map((s, i) => {
+              const isDone = (s === 'email' && (step === 'phone' || user?.emailVerified));
+              const isActive = step === s;
+              return (
+                <div key={s} className="flex items-center gap-3">
+                  <div className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold transition-all
+                    ${isDone ? 'bg-emerald-500 text-white' : isActive ? 'bg-blue-600 text-white ring-4 ring-blue-500/20' : 'bg-slate-200 dark:bg-white/10 text-slate-500'}`}>
+                    {isDone ? '✓' : i + 1}
+                  </div>
+                  <span className={`text-xs font-semibold ${isActive ? 'text-slate-800 dark:text-white' : 'text-slate-400'}`}>
+                    {s.charAt(0).toUpperCase() + s.slice(1)}
+                  </span>
+                  {i === 0 && <div className={`w-8 h-0.5 rounded ${isDone ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-white/10'}`} />}
+                </div>
+              );
+            })}
           </div>
-          <h1 className="text-2xl font-black text-slate-800 dark:text-white mb-2 tracking-tight uppercase">
-            {step === 'success' ? 'Verified!' : `${step} Verification`}
+        )}
+
+        {/* Header */}
+        <div className="text-center mb-8 relative z-10">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30 mx-auto mb-4">
+            {current.icon}
+          </div>
+          <h1 className="text-2xl font-black text-slate-800 dark:text-white mb-2 tracking-tight">
+            {current.title}
           </h1>
           <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">
-            {step === 'email' ? `We've sent a 6-digit code to ${email}` : step === 'phone' ? `Now verify your phone number associated with ${email}` : 'Your account is now fully verified and secure.'}
+            {current.subtitle}
           </p>
         </div>
 
         <AnimatePresence mode="wait">
           {step !== 'success' ? (
-            <motion.form 
+            <motion.div
               key={step}
               variants={variants}
               initial="enter"
               animate="center"
               exit="exit"
               transition={{ duration: 0.3 }}
-              onSubmit={handleVerify} 
-              className="space-y-6 relative z-10"
+              className="space-y-5 relative z-10"
             >
-              <div className="space-y-4">
-                <input
-                  type="text"
-                  maxLength="6"
-                  className="w-full text-center text-3xl font-bold tracking-[0.5em] py-4 rounded-xl bg-white/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                  placeholder="000000"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                  required
-                />
-                
+              {/* Console hint banner */}
+              {otpSent && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-start gap-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20"
+                >
+                  <Terminal className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+                  <p className="text-xs text-amber-700 dark:text-amber-300 font-medium">
+                    <span className="font-bold">OTP logged to backend console.</span> Open your terminal where the Node.js server is running and look for the line starting with <code className="bg-amber-100 dark:bg-amber-900/40 px-1 rounded">--- [SIMULATION] OTP</code>
+                  </p>
+                </motion.div>
+              )}
+
+              <form onSubmit={handleVerify} className="space-y-4">
+                <div>
+                  <input
+                    type="text"
+                    maxLength="6"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    className="w-full text-center text-3xl font-bold tracking-[0.5em] py-4 rounded-xl bg-white/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                    placeholder="000000"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                    required
+                  />
+                </div>
+
                 <div className="flex justify-between items-center px-1">
                   <button
                     type="button"
-                    onClick={handleSendOTP}
+                    onClick={() => handleSendOTP(step)}
                     disabled={resendCooldown > 0 || isLoading}
-                    className="text-xs font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1.5 hover:underline disabled:opacity-50 disabled:no-underline"
+                    className="text-xs font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1.5 hover:underline disabled:opacity-50 disabled:no-underline transition-all"
                   >
                     <RefreshCcw className={`w-3 h-3 ${isLoading ? 'animate-spin' : ''}`} />
-                    {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend Code'}
+                    {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend OTP'}
                   </button>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Random OTP in Console</span>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                    {step === 'email' ? `For: ${email}` : 'Phone OTP'}
+                  </span>
                 </div>
-              </div>
 
-              <motion.button 
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                type="submit" 
-                disabled={isLoading || otp.length !== 6}
-                className="w-full btn-primary bg-gradient-to-r from-blue-600 to-indigo-500 py-3.5 text-lg flex justify-center items-center gap-2"
-              >
-                {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <>Verify Now <ArrowRight className="w-5 h-5" /></>}
-              </motion.button>
-            </motion.form>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  disabled={isLoading || otp.length !== 6}
+                  className="w-full btn-primary bg-gradient-to-r from-blue-600 to-indigo-500 py-3.5 text-lg flex justify-center items-center gap-2"
+                >
+                  {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <>Verify Now <ArrowRight className="w-5 h-5" /></>}
+                </motion.button>
+              </form>
+            </motion.div>
           ) : (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="text-center space-y-6"
+              className="text-center space-y-6 relative z-10"
             >
-              <div className="py-4">
-                <p className="text-slate-600 dark:text-slate-300">You are all set. Redirecting you to the dashboard...</p>
+              <div className="w-20 h-20 rounded-full bg-emerald-500/10 border-2 border-emerald-500 flex items-center justify-center mx-auto">
+                <CheckCircle2 className="w-10 h-10 text-emerald-500" />
               </div>
-              <button
+              <div>
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  🎉 Both email and phone verified!
+                </p>
+                <p className="text-sm text-slate-400 mt-1">Redirecting you to the dashboard...</p>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => navigate('/dashboard')}
-                className="w-full btn-primary bg-emerald-500 py-3.5 text-lg"
+                className="w-full btn-primary bg-gradient-to-r from-emerald-500 to-teal-500 py-3.5 text-lg"
               >
                 Go to Dashboard
-              </button>
+              </motion.button>
             </motion.div>
           )}
         </AnimatePresence>
 
         <div className="mt-8 pt-6 border-t border-slate-200/50 dark:border-white/5 text-center">
-          <button 
+          <button
             type="button"
             onClick={() => navigate('/login')}
             className="text-sm font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"

@@ -6,8 +6,8 @@ import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
 
 export default function Login() {
-  const [email, setEmail] = useState('prakharkumarcse@gmail.com');
-  const [password, setPassword] = useState('12345678');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const { login, loginAsGuest, loading } = useAuth();
   const navigate = useNavigate();
@@ -79,8 +79,8 @@ export default function Login() {
             {isForgotPassword ? "Enter your email to receive a reset link" : "Sign in to manage your finances"}
           </p>
           <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-500/10 border border-primary-100 dark:border-primary-500/20">
-            <span className="w-2 h-2 rounded-full bg-primary-500 animate-pulse"></span>
-            <p className="text-xs text-primary-600 dark:text-primary-400 font-bold uppercase tracking-wider">Demo Mode Ready</p>
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <p className="text-xs text-primary-600 dark:text-primary-400 font-bold uppercase tracking-wider">Secure Login</p>
           </div>
         </div>
 

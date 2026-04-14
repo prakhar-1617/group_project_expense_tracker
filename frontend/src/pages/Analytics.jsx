@@ -130,25 +130,85 @@ export default function Analytics() {
       {/* AnimatePresence wraps the per-range KPI cards and category chart.
           The trend charts are intentionally kept OUTSIDE so they never vanish
           during the exit/enter animation cycle — they simply update in place. */}
+      {/* KPI Cards wrapper */}
       <AnimatePresence mode="wait">
         <motion.div
-           key={range}
+           key={`summary-${range}`}
            initial={{ opacity: 0, y: 10 }}
            animate={{ opacity: 1, y: 0 }}
            exit={{ opacity: 0, y: -10 }}
-           className="space-y-8"
         >
-          {/* Summary KPI Cards */}
           <SummaryCards stats={data.stats} />
-
-          {/* Category Breakdown Pie Chart */}
-          <CategoryChart data={data.categoryData} loading={filtering} />
         </motion.div>
       </AnimatePresence>
 
-      {/* ── Period Comparison Bar Chart ─────────────────────────────────────
-          Placed OUTSIDE AnimatePresence so it never unmounts on range change.
-          Data updates reactively via the `data.trendData` state.              */}
+      {/* Secondary layout: Pie Chart and Line Chart side-by-side */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`cat-${range}`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="h-full"
+          >
+            <CategoryChart data={data.categoryData} loading={filtering} />
+          </motion.div>
+        </AnimatePresence>
+
+        {/* ── Expense Trend Area Chart (Line Chart) ───────────────────────── */}
+        <motion.div variants={itemVariants} className="card shadow-md shadow-slate-200/50 dark:shadow-black/20 h-[400px] flex flex-col relative overflow-hidden group">
+          <div className="absolute -top-16 -left-16 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl group-hover:bg-amber-500/10 transition-colors duration-700"></div>
+          <div className="flex items-center gap-3 mb-6 relative z-10">
+            <div className="p-2 bg-amber-100 dark:bg-amber-500/10 text-amber-500 rounded-lg shadow-sm">
+              <LineIcon className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-lg font-black text-slate-800 dark:text-white leading-none">Expense Trend Analysis</h2>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{rangeLabel} · Spending intensity</p>
+            </div>
+          </div>
+          <div className="flex-1 min-h-0 relative z-10">
+            {filtering ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="w-8 h-8 rounded-full border-4 border-amber-500 border-t-transparent animate-spin"></div>
+              </div>
+            ) : data.trendData.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-slate-400">
+                <LineIcon className="w-12 h-12 mb-2 opacity-50" />
+                <p className="text-xs font-bold uppercase tracking-widest text-center">No trend data available<br/><span className="text-[8px] opacity-70">Add transactions to see trends</span></p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="99%" height="100%">
+                <AreaChart data={data.trendData} margin={{ top: 20, right: 30, left: 10, bottom: 20 }}>
+                  <defs>
+                    <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.15} />
+                  <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }} dy={15} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }} dx={-10} width={45} tickFormatter={(val) => `₹${val/1000}k`} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Area 
+                    type="monotone" 
+                    dataKey="expense" 
+                    stroke="#f59e0b" 
+                    strokeWidth={4} 
+                    fillOpacity={1} 
+                    fill="url(#trendGrad)" 
+                    dot={{ r: 4, fill: '#fff', strokeWidth: 2, stroke: '#f59e0b' }}
+                    activeDot={{ r: 6, fill: '#f59e0b', stroke: '#fff', strokeWidth: 2 }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </motion.div>
+      </div>
+
+      {/* ── Period Comparison Bar Chart (Trend Analysis) Full Width Below ── */}
       <motion.div variants={itemVariants} className="card shadow-md shadow-slate-200/50 dark:shadow-black/20 h-[400px] flex flex-col relative overflow-hidden group">
         <div className="absolute -top-16 -right-16 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
         <div className="flex items-center gap-3 mb-6 relative z-10">
@@ -174,7 +234,6 @@ export default function Analytics() {
             <ResponsiveContainer width="99%" height="100%">
               <BarChart data={data.trendData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <defs>
-                  {/* Stable IDs — chart is outside AnimatePresence so no duplicate-ID risk */}
                   <linearGradient id="incomeGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
                     <stop offset="95%" stopColor="#10b981" stopOpacity={0.3}/>
@@ -192,57 +251,6 @@ export default function Analytics() {
                 <Bar dataKey="income" name="Income" fill="url(#incomeGrad)" radius={[6,6,0,0]} maxBarSize={24} />
                 <Bar dataKey="expense" name="Expense" fill="url(#expenseGrad)" radius={[6,6,0,0]} maxBarSize={24} />
               </BarChart>
-            </ResponsiveContainer>
-          )}
-        </div>
-      </motion.div>
-
-      {/* ── Expense Trend Area Chart ──────────────────────────────────────── */}
-      <motion.div variants={itemVariants} className="card shadow-md shadow-slate-200/50 dark:shadow-black/20 h-[450px] flex flex-col relative overflow-hidden group">
-        <div className="absolute -top-16 -left-16 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl group-hover:bg-amber-500/10 transition-colors duration-700"></div>
-        <div className="flex items-center gap-3 mb-6 relative z-10">
-          <div className="p-2 bg-amber-100 dark:bg-amber-500/10 text-amber-500 rounded-lg shadow-sm">
-            <LineIcon className="w-5 h-5" />
-          </div>
-          <div>
-            <h2 className="text-lg font-black text-slate-800 dark:text-white leading-none">Expense Trend Analysis</h2>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{rangeLabel} · Spending intensity</p>
-          </div>
-        </div>
-        <div className="flex-1 min-h-0 relative z-10">
-          {filtering ? (
-            <div className="flex items-center justify-center h-full">
-              <div className="w-8 h-8 rounded-full border-4 border-amber-500 border-t-transparent animate-spin"></div>
-            </div>
-          ) : data.trendData.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-slate-400">
-              <LineIcon className="w-12 h-12 mb-2 opacity-50" />
-              <p className="text-xs font-bold uppercase tracking-widest text-center">No trend data available<br/><span className="text-[8px] opacity-70">Add transactions to see trends</span></p>
-            </div>
-          ) : (
-            <ResponsiveContainer width="99%" height="100%">
-              <AreaChart data={data.trendData} margin={{ top: 20, right: 30, left: 10, bottom: 20 }}>
-                <defs>
-                  <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.15} />
-                <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }} dy={15} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }} dx={-10} width={45} tickFormatter={(val) => `₹${val/1000}k`} />
-                <Tooltip content={<CustomTooltip />} />
-                <Area 
-                  type="monotone" 
-                  dataKey="expense" 
-                  stroke="#f59e0b" 
-                  strokeWidth={4} 
-                  fillOpacity={1} 
-                  fill="url(#trendGrad)" 
-                  dot={{ r: 4, fill: '#fff', strokeWidth: 2, stroke: '#f59e0b' }}
-                  activeDot={{ r: 6, fill: '#f59e0b', stroke: '#fff', strokeWidth: 2 }}
-                />
-              </AreaChart>
             </ResponsiveContainer>
           )}
         </div>

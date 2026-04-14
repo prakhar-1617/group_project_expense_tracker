@@ -24,7 +24,7 @@ async function seedUser() {
 
     // Create User
     const user = await User.create({
-      name: 'prahar kumar',
+      name: 'prakhar kumar',
       email: email,
       password: password, // Schema will hash it via pre-save hook
       phoneNumber: '+918115301987',

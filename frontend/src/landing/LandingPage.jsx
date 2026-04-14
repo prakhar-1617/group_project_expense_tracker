@@ -9,6 +9,8 @@ import HowItWorks from './sections/HowItWorks';
 import Insights from './sections/Insights';
 import Security from './sections/Security';
 import Pricing from './sections/Pricing';
+import SplitSection from './sections/SplitSection';
+import BudgetSection from './sections/BudgetSection';
 import CTA from './sections/CTA';
 import Footer from './sections/Footer';
 
@@ -79,6 +81,8 @@ function LandingPage() {
         <Hero />
         <Features />
         <Dashboard />
+        <SplitSection />
+        <BudgetSection />
         <HowItWorks />
         <Insights />
         <Security />

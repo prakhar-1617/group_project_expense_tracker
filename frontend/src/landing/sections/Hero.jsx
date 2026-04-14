@@ -143,14 +143,14 @@ export default function Hero() {
             ref={phoneRef}
             className="relative w-[200px] sm:w-[240px] lg:w-[280px] flex-shrink-0"
           >
-            <div className="relative rounded-[28px] overflow-hidden shadow-2xl border border-white/10">
+            <div className="relative rounded-[28px] overflow-hidden shadow-2xl border border-white/10 group">
               <img
-                src="/hero_phone_ui.jpg"
+                src="/landing/dashboard.png"
                 alt="FinTrack App Dashboard"
-                className="w-full h-auto"
+                className="w-full h-auto transform transition-transform duration-700 group-hover:scale-105"
               />
-              {/* Phone bezel overlay */}
-              <div className="absolute inset-0 rounded-[28px] border-[8px] border-[#1a1a1a] pointer-events-none" />
+              {/* Bezel overlay */}
+              <div className="absolute inset-0 rounded-[28px] border-[1px] border-white/20 pointer-events-none" />
             </div>
             {/* Glow effect */}
             <div className="absolute -inset-4 bg-[#A87FF3]/20 blur-3xl rounded-full -z-10" />

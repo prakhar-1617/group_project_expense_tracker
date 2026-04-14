@@ -10,20 +10,20 @@ const features = [
     icon: Receipt,
     title: 'Track',
     description: 'Auto-capture every spend. Categorize without lifting a finger.',
-    image: '/hero_phone_ui.jpg',
+    image: '/landing/dashboard.png',
   },
   {
     icon: Target,
     title: 'Budget',
     description: 'Set weekly limits. Get nudges before you overspend.',
-    image: '/feature_budget.jpg',
+    image: '/landing/budget.png',
     highlighted: true,
   },
   {
     icon: BarChart3,
     title: 'Analyze',
     description: 'See trends, spot waste, and optimize your cash flow.',
-    image: '/feature_analyze.jpg',
+    image: '/landing/analytics.png',
   },
 ];
 

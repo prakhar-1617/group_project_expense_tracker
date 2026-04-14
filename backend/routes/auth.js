@@ -6,6 +6,7 @@ const User = require('../models/User');
 const Transaction = require('../models/Transaction');
 const Split = require('../models/Split');
 const { protect } = require('../middleware/auth');
+const { sendOTPEmail } = require('../services/emailService');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
@@ -141,14 +142,10 @@ router.post('/send-otp', async (req, res) => {
     };
     await user.save();
 
-    // Clear, easy-to-spot console log for local development
-    const target = type === 'phone' ? (user.phoneNumber || 'phone') : email;
-    console.log('\n' + '='.repeat(60));
-    console.log(`  ✉  OTP VERIFICATION  [${type.toUpperCase()}]`);
-    console.log(`  Target : ${target}`);
-    console.log(`  Code   : ${otpCode}`);
-    console.log(`  Expires: 5 minutes`);
-    console.log('='.repeat(60) + '\n');
+    // Send OTP — real Gmail if credentials exist, console fallback otherwise
+    // For 'email' type: send to user's email
+    // For 'phone' type: also send to email (no SMS provider configured yet)
+    await sendOTPEmail(email, otpCode, type);
 
     res.json({ message: `OTP sent successfully to your ${type}` });
   } catch (error) {

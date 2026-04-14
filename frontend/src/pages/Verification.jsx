@@ -75,8 +75,8 @@ export default function Verification() {
       setResendCooldown(30);
       toast.success(
         activeStep === 'email'
-          ? `OTP sent! Check your backend console/terminal.`
-          : `OTP sent! Check your backend console/terminal.`,
+          ? `OTP sent! Check your inbox at ${email}`
+          : `OTP sent! Check your inbox for the phone verification code`,
         { duration: 5000 }
       );
     } catch (err) {
@@ -217,16 +217,16 @@ export default function Verification() {
               transition={{ duration: 0.3 }}
               className="space-y-5 relative z-10"
             >
-              {/* Console hint banner */}
+              {/* Inbox hint banner */}
               {otpSent && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-start gap-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20"
+                  className="flex items-start gap-3 p-3 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20"
                 >
-                  <Terminal className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
-                  <p className="text-xs text-amber-700 dark:text-amber-300 font-medium">
-                    <span className="font-bold">OTP logged to backend console.</span> Open your terminal where the Node.js server is running and look for the line starting with <code className="bg-amber-100 dark:bg-amber-900/40 px-1 rounded">--- [SIMULATION] OTP</code>
+                  <Mail className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                  <p className="text-xs text-blue-700 dark:text-blue-300 font-medium">
+                    <span className="font-bold">OTP sent successfully.</span> Please check your inbox and your <b>spam/junk</b> folder for an email from FinTrack Pro.
                   </p>
                 </motion.div>
               )}

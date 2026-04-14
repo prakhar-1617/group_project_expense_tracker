@@ -38,10 +38,8 @@ export default function Dashboard() {
       const scrollTl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
-          start: 'top top',
-          end: '+=130%',
-          pin: true,
-          scrub: 0.6,
+          start: 'top 80%',
+          toggleActions: 'play none none none',
         },
       });
 
@@ -72,20 +70,7 @@ export default function Dashboard() {
 
       // Phase 2: SETTLE (30-70%) - Hold
 
-      // Phase 3: EXIT (70-100%)
-      scrollTl
-        .fromTo(
-          text,
-          { x: 0, opacity: 1 },
-          { x: '-18vw', opacity: 0, ease: 'power2.in' },
-          0.7
-        )
-        .fromTo(
-          dashboard,
-          { y: 0, scale: 1, opacity: 1 },
-          { y: '-14vh', scale: 0.92, opacity: 0, ease: 'power2.in' },
-          0.7
-        );
+      
     }, section);
 
     return () => ctx.revert();

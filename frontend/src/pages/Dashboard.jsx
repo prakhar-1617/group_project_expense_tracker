@@ -23,7 +23,17 @@ export default function Dashboard() {
   const [summary, setSummary] = useState(null);
   const [budget, setBudget] = useState(null);
   const [recentTxns, setRecentTxns] = useState([]);
+  const [note, setNote] = useState('');
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const savedNote = localStorage.getItem('dashboardNotepad');
+    if (savedNote) setNote(savedNote);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('dashboardNotepad', note);
+  }, [note]);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -93,30 +103,50 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <AIHub />
 
-        <motion.div variants={itemVariants} className="card relative z-10 overflow-hidden flex flex-col group">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-fuchsia-500/5 z-0"></div>
-          {/* Rest of the target card content... */}
-          <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
-          
-          <div className="relative z-10 flex flex-col items-center justify-center flex-1 py-8 text-center">
-            <motion.div 
-              whileHover={{ rotate: 180, scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              transition={{ duration: 0.5, type: "spring" }}
-              className="w-20 h-20 bg-gradient-to-br from-primary-100 to-fuchsia-100 dark:from-primary-900/30 dark:to-fuchsia-900/30 rounded-3xl flex items-center justify-center text-primary-600 dark:text-primary-400 mb-6 shadow-inner border border-white/50 dark:border-white/5 cursor-pointer"
-            >
-              <Target className="w-10 h-10" />
-            </motion.div>
-            <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">Manage Your Budget</h3>
-            <p className="text-sm text-slate-500 mb-8 max-w-[200px]">Set limits and track your financial goals to build wealth over time.</p>
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full">
-              <Link to="/budget" className="btn-secondary w-full group relative overflow-hidden inline-block text-center flex-1 py-3">
-                <span className="relative z-10 block">Configure Budget</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-primary-500/0 via-primary-500/10 to-primary-500/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-              </Link>
-            </motion.div>
+      <motion.div variants={itemVariants} className="card relative z-10 overflow-hidden flex flex-col group">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-50/80 to-slate-100/80 dark:from-slate-800/70 dark:to-slate-900/70 z-0"></div>
+        <div className="relative z-10 p-6 h-full flex flex-col gap-4">
+          <div>
+            <h3 className="text-xl font-semibold text-slate-800 dark:text-white">Quick Notepad</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Jot down reminders or ideas for your budgeting.</p>
           </div>
-        </motion.div>
+          <textarea
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Type your note here..."
+            rows={8}
+            className="w-full min-h-[180px] resize-none rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-200 dark:border-slate-700 dark:bg-slate-900/90 dark:text-slate-100 dark:focus:border-primary-500 dark:focus:ring-primary-500/20"
+          />
+          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+            <span>{note.length} characters</span>
+            <span>Auto-saved locally</span>
+          </div>
+        </div>
+      </motion.div>
+
+      <motion.div variants={itemVariants} className="card relative z-10 overflow-hidden flex flex-col group">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-fuchsia-500/5 z-0"></div>
+        <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+        
+        <div className="relative z-10 flex flex-col items-center justify-center flex-1 py-8 text-center">
+          <motion.div 
+            whileHover={{ rotate: 180, scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            transition={{ duration: 0.5, type: "spring" }}
+            className="w-20 h-20 bg-gradient-to-br from-primary-100 to-fuchsia-100 dark:from-primary-900/30 dark:to-fuchsia-900/30 rounded-3xl flex items-center justify-center text-primary-600 dark:text-primary-400 mb-6 shadow-inner border border-white/50 dark:border-white/5 cursor-pointer"
+          >
+            <Target className="w-10 h-10" />
+          </motion.div>
+          <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">Manage Your Budget</h3>
+          <p className="text-sm text-slate-500 mb-8 max-w-[200px]">Set limits and track your financial goals to build wealth over time.</p>
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full">
+            <Link to="/budget" className="btn-secondary w-full group relative overflow-hidden inline-block text-center flex-1 py-3">
+              <span className="relative z-10 block">Configure Budget</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-primary-500/0 via-primary-500/10 to-primary-500/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+            </Link>
+          </motion.div>
+        </div>
+      </motion.div>
       </div>
     </motion.div>
   );

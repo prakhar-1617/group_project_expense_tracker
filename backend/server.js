@@ -7,19 +7,34 @@ dotenv.config();
 connectDB();
 
 const app = express();
+app.set('trust proxy', 1);
+
+// Root health check for easy testing
+app.get('/', (req, res) => {
+  res.json({ message: 'Expense Tracker API is live' });
+});
 
 app.use(cors({
-  origin: [
-    process.env.FRONTEND_URL,
-    'https://group-project-expense-tracker.vercel.app',
-    'http://localhost:5173', 
-    'http://localhost:5174',
-    'http://localhost:5175',
-    'http://localhost:5176'
-  ].filter(Boolean),
+  origin: function (origin, callback) {
+    const allowed = [
+      process.env.FRONTEND_URL,
+      'https://group-project-expense-tracker.vercel.app',
+      'http://localhost:5173', 
+      'http://localhost:5174',
+      'http://localhost:5175',
+      'http://localhost:5176'
+    ].filter(Boolean);
+    
+    if (!origin || allowed.includes(origin) || origin.endsWith('.vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  optionsSuccessStatus: 200
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

@@ -40,12 +40,7 @@ export default function Login() {
       }
       navigate('/dashboard');
     } catch (err) {
-      if (err.response?.status === 403) {
-        toast.error('Verification required before login');
-        navigate(`/verify?email=${email}`);
-      } else {
-        toast.error(err.response?.data?.message || 'Failed to login');
-      }
+      toast.error(err.response?.data?.message || 'Failed to login');
     }
   };
 

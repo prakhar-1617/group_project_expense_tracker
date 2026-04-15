@@ -156,7 +156,7 @@ export default function Dashboard() {
           </motion.div>
           <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">Manage Your Budget</h3>
           <p className="text-sm text-slate-500 mb-8 max-w-[200px]">Set limits and track your financial goals to build wealth over time.</p>
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full">
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full px-4">
             <Link to="/budget" className="btn-secondary w-full group relative overflow-hidden inline-block text-center flex-1 py-3">
               <span className="relative z-10 block">Configure Budget</span>
               <div className="absolute inset-0 bg-gradient-to-r from-primary-500/0 via-primary-500/10 to-primary-500/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
@@ -165,6 +165,41 @@ export default function Dashboard() {
         </div>
       </motion.div>
       </div>
+
+      {/* Recent Transactions List */}
+      <motion.div variants={itemVariants} className="card z-10">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-bold text-slate-800 dark:text-white">Recent Transactions</h3>
+          <Link to="/transactions" className="text-sm font-bold text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1">
+            View All <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+        
+        {recentTxns.length === 0 ? (
+          <div className="py-12 text-center">
+            <p className="text-slate-500 dark:text-slate-400">No transactions yet. Start by adding one!</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-100 dark:divide-dark-border">
+            {recentTxns.map((txn) => (
+              <div key={txn._id} className="py-4 flex items-center justify-between group cursor-default">
+                <div className="flex items-center gap-4">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm ${txn.type === 'income' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600' : 'bg-rose-50 dark:bg-rose-500/10 text-rose-600'}`}>
+                    <ArrowLeftRight size={18} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-800 dark:text-white group-hover:text-primary-600 transition-colors">{txn.description || txn.category}</h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{new Date(txn.date).toLocaleDateString()} • {txn.category}</p>
+                  </div>
+                </div>
+                <div className={`font-black text-lg ${txn.type === 'income' ? 'text-emerald-500' : 'text-slate-800 dark:text-white'}`}>
+                  {txn.type === 'income' ? '+' : '-'}₹{txn.amount.toLocaleString()}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </motion.div>
     </motion.div>
   );
 }

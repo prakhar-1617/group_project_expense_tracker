@@ -24,24 +24,9 @@ export function AuthProvider({ children }) {
     fetchUser();
   }, []);
 
+  // User persistence logic (guest auto-cleanup removed to allow refresh)
   useEffect(() => {
-    if (user?.isGuest) {
-      const handleUnload = () => {
-        const token = localStorage.getItem('token');
-        if (token) {
-          const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-          fetch(`${baseURL}/auth/me`, {
-            method: 'DELETE',
-            headers: {
-              'Authorization': `Bearer ${token}`
-            },
-            keepalive: true
-          }).catch(console.error); // Ignore errors during unload
-        }
-      };
-      window.addEventListener('beforeunload', handleUnload);
-      return () => window.removeEventListener('beforeunload', handleUnload);
-    }
+    // We could add a background task to cleanup old guests later
   }, [user]);
 
   const login = async (email, password) => {
@@ -82,29 +67,7 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const sendOTP = async (email, type) => {
-    try {
-      const res = await API.post('/auth/send-otp', { email, type });
-      return res.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
-  };
 
-  const verifyOTP = async (email, code, type) => {
-    try {
-      const res = await API.post('/auth/verify-otp', { email, code, type });
-      if (res.data.user) {
-        setUser(res.data.user);
-      }
-      if (res.data.token) {
-        localStorage.setItem('token', res.data.token);
-      }
-      return res.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
-  };
 
   const logout = async () => {
     if (user?.isGuest) {
@@ -131,7 +94,7 @@ export function AuthProvider({ children }) {
 
   // Provide everything. loading acts as global auth loading state
   return (
-    <AuthContext.Provider value={{ user, login, loginAsGuest, register, logout, loading, updateUser, sendOTP, verifyOTP }}>
+    <AuthContext.Provider value={{ user, login, loginAsGuest, register, logout, loading, updateUser }}>
       {!loading && children}
     </AuthContext.Provider>
   );

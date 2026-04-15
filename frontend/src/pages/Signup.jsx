@@ -18,8 +18,8 @@ export default function Signup() {
     try {
       const sanitizedPhone = phoneNumber.replace(/[\s\-\(\)\.]/g, '');
       await register(name, email, password, sanitizedPhone);
-      toast.success('Account created! Please verify your email and phone.');
-      navigate(`/verify?email=${email}`);
+      toast.success('Account created! Welcome to FinTrack.');
+      navigate('/dashboard');
     } catch (err) {
       const message = err.response?.data?.message || 
                       err.response?.data?.errors?.[0]?.msg || 

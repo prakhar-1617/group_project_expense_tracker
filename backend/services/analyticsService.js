@@ -11,7 +11,8 @@ class AnalyticsService {
 
     switch (range) {
       case '1d':
-        startDate = new Date(now.setHours(0, 0, 0, 0));
+        const d_1d = new Date();
+        startDate = new Date(d_1d.setHours(0, 0, 0, 0));
         durationMs = 24 * 60 * 60 * 1000;
         break;
       case '1w':

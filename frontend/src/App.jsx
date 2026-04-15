@@ -16,7 +16,6 @@ import Transactions from './pages/Transactions';
 import Analytics from './pages/Analytics';
 import Budget from './pages/Budget';
 import SplitExpenses from './pages/SplitExpenses';
-import Verification from './pages/Verification';
 import LandingPage from './landing/LandingPage';
 
 const PrivateRoute = ({ children }) => {
@@ -24,11 +23,6 @@ const PrivateRoute = ({ children }) => {
   if (loading) return null;
   
   if (!user) return <Navigate to="/login" />;
-
-  // Force verification for registered users (bypass for guests)
-  if (!user.isGuest && (!user.emailVerified || !user.phoneVerified)) {
-    return <Navigate to={`/verify?email=${user.email}`} />;
-  }
 
   return children;
 };
@@ -59,7 +53,7 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/verify" element={<Verification />} />
+
             
             <Route path="/" element={<LandingPage />} />
             

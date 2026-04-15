@@ -1,4 +1,4 @@
-import { Sparkles, Twitter, Github, Linkedin } from 'lucide-react';
+import { Sparkles, Twitter, Github, Linkedin, Instagram } from 'lucide-react';
 
 const footerLinks = {
   Product: ['Features', 'Dashboard', 'Insights', 'Pricing', 'API'],
@@ -8,9 +8,9 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { icon: Twitter, href: '#', label: 'Twitter' },
-  { icon: Github, href: '#', label: 'GitHub' },
-  { icon: Linkedin, href: '#', label: 'LinkedIn' },
+  { icon: Instagram, href: 'https://www.instagram.com/prakhar_ffv', label: 'Instagram' },
+  { icon: Github, href: 'https://github.com/prakhar-1617', label: 'GitHub' },
+  { icon: Linkedin, href: 'https://www.linkedin.com/in/prakharkumar1617', label: 'LinkedIn' },
 ];
 
 export default function Footer() {
@@ -73,7 +73,7 @@ export default function Footer() {
               © 2026 FinTrack. All rights reserved.
             </p>
             <p className="text-xs font-medium text-[#A87FF3]">
-              Designed & Developed by @prakharkumar
+              Designed & Developed by Prakhar Kumar
             </p>
           </div>
           <div className="flex items-center gap-6">

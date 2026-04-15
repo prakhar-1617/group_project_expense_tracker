@@ -2,9 +2,10 @@ const nodemailer = require('nodemailer');
 
 // Create Gmail transporter — uses App Password, NOT your real Gmail password
 const createTransporter = () => {
+  console.log("chal raha hai")
   const user = process.env.GMAIL_USER;
   const pass = process.env.GMAIL_APP_PASSWORD;
-  
+
   if (!user || user === 'your_gmail@gmail.com' || !pass) {
     return null; // Gracefully fall back to console simulation
   }

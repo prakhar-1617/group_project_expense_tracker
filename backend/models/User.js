@@ -24,22 +24,9 @@ const userSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    emailVerified: {
-      type: Boolean,
-      default: false,
-    },
-    phoneVerified: {
-      type: Boolean,
-      default: false,
-    },
-    otp: {
-      code: String,
-      expiry: Date,
-      attempts: {
-        type: Number,
-        default: 0,
-      },
-      lastSent: Date,
+    phoneNumber: {
+      type: String,
+      trim: true,
     },
     monthlyBudget: {
       type: Number,

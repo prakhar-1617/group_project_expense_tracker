@@ -59,29 +59,17 @@ export default function Analytics() {
   const [loading, setLoading] = useState(true);
   const [filtering, setFiltering] = useState(false);
   
-  // Cache per range to avoid redundant API calls
-  const cache = useRef({});
-
   useEffect(() => {
     const fetchRangeData = async () => {
-      // Serve from cache if available
-      if (cache.current[range]) {
-        setData(cache.current[range]);
-        setFiltering(false);
-        setLoading(false);
-        return;
-      }
-
       setFiltering(true);
       try {
         const res = await API.get(`/transactions/summary?range=${range}`);
         const result = {
           stats: res.data.stats,
           categoryData: res.data.categoryData,
-          trendData: res.data.trendData || [],  // range-aware grouped trend data
+          trendData: res.data.trendData || [],
         };
         setData(result);
-        cache.current[range] = result;
       } catch (err) {
         console.error('Failed to load analytics', err);
       } finally {

@@ -73,7 +73,7 @@ export default function Footer() {
               © 2026 FinTrack. All rights reserved.
             </p>
             <p className="text-xs font-medium text-[#A87FF3]">
-              Designed & Developed by Prakhar Kumar
+              Designed & Developed by Prakhar Kumar,Nishant Kant, Neeraj Gautam, Mahi Agarwal
             </p>
           </div>
           <div className="flex items-center gap-6">

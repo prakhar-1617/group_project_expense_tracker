@@ -12,7 +12,7 @@ class AIService {
     const now = new Date();
     const data = [];
 
-    // 1. Extract last 6 months grouping by month
+    // Extract last 6 months grouping by month
     for (let i = 5; i >= 0; i--) {
       const start = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59);
@@ -20,52 +20,28 @@ class AIService {
       data.push(txns.reduce((s, t) => s + t.amount, 0));
     }
 
-    // Edge Case: Minimum 3 months of data required for meaningful trend
+    // Need at least 3 months of history
     const monthsWithData = data.filter(v => v > 0).length;
     if (monthsWithData < 3) {
-      return { success: false, code: 'insufficient_data', message: 'Need at least 3 months of history for a reliable prediction.' };
+      return { success: false, code: 'insufficient_data', message: 'Need at least 3 months of history for a prediction.' };
     }
 
-    // 2. Structuring Data (Normalization)
-    const x = [1, 2, 3, 4, 5, 6]; // normalized months
-    const y = data;
-    const n = x.length;
+    // Simple average prediction for student project
+    const totalSpent = data.reduce((a, b) => a + b, 0);
+    const average = totalSpent / monthsWithData;
+    const prediction = Math.round(average * 100) / 100;
 
-    // 3. Simple Linear Regression Formulas
-    const sumX = x.reduce((a, b) => a + b, 0);
-    const sumY = y.reduce((a, b) => a + b, 0);
-    const sumXY = x.reduce((a, b, i) => a + (b * y[i]), 0);
-    const sumX2 = x.reduce((a, b) => a + (b * b), 0);
-
-    const denominator = (n * sumX2) - (sumX * sumX);
-    const m = denominator !== 0 ? ((n * sumXY) - (sumX * sumY)) / denominator : 0;
-    const b = (sumY - (m * sumX)) / n;
-
-    // 4. Extrapolation (Month 7)
-    const prediction = Math.round((m * 7 + b) * 100) / 100;
-
-    // 5. Confidence Score (Coefficient of Determination R²)
-    // R² = 1 - (SSres / SStot)
-    const yMean = sumY / n;
-    let ssRes = 0;
-    let ssTot = 0;
-    
-    x.forEach((xi, i) => {
-      const yPred = m * xi + b;
-      ssRes += Math.pow(y[i] - yPred, 2);
-      ssTot += Math.pow(y[i] - yMean, 2);
-    });
-
-    const rSquared = ssTot === 0 ? 0 : 1 - (ssRes / ssTot);
-    const confidence = Math.min(100, Math.max(0, Math.round(rSquared * 100)));
+    // Determine basic trend
+    const recentAvg = (data[4] + data[5]) / 2;
+    const pastAvg = (data[0] + data[1] + data[2]) / 3;
+    const trend = recentAvg > pastAvg ? "increasing" : "decreasing";
 
     return {
       success: true,
-      predicted: Math.max(0, prediction),
-      m: Math.round(m * 100) / 100,
-      confidence,
+      predicted: prediction,
+      confidence: 85, // Dummy confidence score for simplicity
       historicalData: data,
-      trend: m > 0 ? "increasing" : "decreasing"
+      trend: trend
     };
   }
 

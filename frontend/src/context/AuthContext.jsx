@@ -24,10 +24,6 @@ export function AuthProvider({ children }) {
     fetchUser();
   }, []);
 
-  // User persistence logic (guest auto-cleanup removed to allow refresh)
-  useEffect(() => {
-    // We could add a background task to cleanup old guests later
-  }, [user]);
 
   const login = async (email, password) => {
     setLoading(true);
@@ -67,8 +63,6 @@ export function AuthProvider({ children }) {
     }
   };
 
-
-
   const logout = async () => {
     if (user?.isGuest) {
       try {
@@ -92,7 +86,7 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Provide everything. loading acts as global auth loading state
+  // Expose auth state and functions to the rest of the app
   return (
     <AuthContext.Provider value={{ user, login, loginAsGuest, register, logout, loading, updateUser }}>
       {!loading && children}

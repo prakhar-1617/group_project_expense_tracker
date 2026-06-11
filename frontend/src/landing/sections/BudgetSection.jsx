@@ -5,11 +5,14 @@ import { Target, ArrowRight, ListChecks } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
+import { useNavigate } from 'react-router-dom';
+
 export default function BudgetSection() {
   const sectionRef = useRef(null);
   const budgetImgRef = useRef(null);
   const transactionsImgRef = useRef(null);
   const textRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -118,7 +121,7 @@ export default function BudgetSection() {
             </div>
           </div>
 
-          <button className="btn-primary flex items-center gap-2 group mt-6 bg-emerald-600 hover:bg-emerald-500 border-emerald-400/50 shadow-emerald-500/20">
+          <button onClick={() => navigate('/login')} className="btn-primary flex items-center gap-2 group mt-6 bg-emerald-600 hover:bg-emerald-500 border-emerald-400/50 shadow-emerald-500/20">
             Configure your budget
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </button>

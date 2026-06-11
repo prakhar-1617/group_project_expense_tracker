@@ -5,10 +5,13 @@ import { Users, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
+import { useNavigate } from 'react-router-dom';
+
 export default function SplitSection() {
   const sectionRef = useRef(null);
   const screenshotRef = useRef(null);
   const textRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -86,7 +89,7 @@ export default function SplitSection() {
             ))}
           </ul>
 
-          <button className="btn-primary flex items-center gap-2 group mt-4 bg-blue-600 hover:bg-blue-500 border-blue-400/50 shadow-blue-500/20">
+          <button onClick={() => navigate('/login')} className="btn-primary flex items-center gap-2 group mt-4 bg-blue-600 hover:bg-blue-500 border-blue-400/50 shadow-blue-500/20">
             Start a group split
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </button>

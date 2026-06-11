@@ -46,6 +46,19 @@ app.use('/api/budget', require('./routes/budget'));
 app.use('/api/ai', require('./routes/ai'));
 app.use('/api/splits', require('./routes/splits'));
 
+// Public stats for landing page
+app.get('/api/stats', async (req, res) => {
+  try {
+    const User = require('./models/User');
+    const Transaction = require('./models/Transaction');
+    const usersCount = await User.countDocuments();
+    const txCount = await Transaction.countDocuments();
+    res.json({ users: usersCount, transactions: txCount });
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching stats' });
+  }
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Expense Tracker API is running', timestamp: new Date() });

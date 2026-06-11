@@ -24,10 +24,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    phoneNumber: {
-      type: String,
-      trim: true,
-    },
     monthlyBudget: {
       type: Number,
       default: 0,

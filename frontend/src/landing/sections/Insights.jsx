@@ -11,12 +11,15 @@ const metrics = [
   { label: 'Top Category', value: 'Investments', change: '32%', icon: PiggyBank },
 ];
 
+import { useNavigate } from 'react-router-dom';
+
 export default function Insights() {
   const sectionRef = useRef(null);
   const analyticsRef = useRef(null);
   const textRef = useRef(null);
   const chartRef = useRef(null);
   const metricsRef = useRef([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -139,7 +142,7 @@ export default function Insights() {
             ))}
           </ul>
 
-          <button className="btn-primary flex items-center gap-2 group mt-4">
+          <button onClick={() => navigate('/login')} className="btn-primary flex items-center gap-2 group mt-4">
             See a sample report
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </button>

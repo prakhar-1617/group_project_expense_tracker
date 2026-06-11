@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Transaction = require('../models/Transaction');
 const { protect } = require('../middleware/auth');
-const analyticsService = require('../services/analyticsService');
+const { getSummary } = require('../services/analyticsService');
 
 // @route   GET /api/transactions
 router.get('/', protect, async (req, res) => {
@@ -92,21 +92,12 @@ router.delete('/:id', protect, async (req, res) => {
 router.get('/summary', protect, async (req, res) => {
   try {
     const { range } = req.query;
-    const result = await analyticsService.getSummary(req.user._id, range);
+    const result = await getSummary(req.user._id, range);
     res.json(result);
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
-// @route   GET /api/transactions/monthly-trend
-router.get('/monthly-trend', protect, async (req, res) => {
-  try {
-    const result = await analyticsService.getMonthlyTrend(req.user._id);
-    res.json(result);
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
 
 module.exports = router;

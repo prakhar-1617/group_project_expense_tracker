@@ -1,7 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight, Shield, Brain, Zap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -19,7 +20,22 @@ export default function Hero() {
   const ctaRef = useRef(null);
   const microRef = useRef(null);
 
+  const navigate = useNavigate();
+  const [stats, setStats] = useState({ users: 0, transactions: 0 });
+
   useEffect(() => {
+    // Fetch stats
+    const fetchStats = async () => {
+      try {
+        const response = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + '/stats');
+        const data = await response.json();
+        setStats(data);
+      } catch (err) {
+        console.error('Failed to fetch stats', err);
+      }
+    };
+    fetchStats();
+
     const section = sectionRef.current;
     const card = cardRef.current;
     const phone = phoneRef.current;
@@ -127,14 +143,19 @@ export default function Hero() {
             <p className="text-base lg:text-lg text-white/60 leading-relaxed">
               AI-powered expense tracking that learns your habits and keeps your
               budget on autopilot.
+              {stats.users > 0 && (
+                <span className="block mt-2 text-[#A87FF3]/80">
+                  Join {stats.users.toLocaleString()}+ users tracking {stats.transactions.toLocaleString()} transactions!
+                </span>
+              )}
             </p>
 
             <div ref={ctaRef} className="flex flex-wrap items-center gap-4 pt-2">
-              <button className="btn-primary flex items-center gap-2 group">
+              <button onClick={() => navigate('/signup')} className="btn-primary flex items-center gap-2 group">
                 Get Started
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </button>
-              <button className="btn-secondary">See how it works</button>
+              <button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })} className="btn-secondary">See how it works</button>
             </div>
           </div>
 

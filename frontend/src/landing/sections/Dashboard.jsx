@@ -20,11 +20,14 @@ const transactions = [
   { name: 'Netflix Subscription', category: 'Entertainment', amount: -15.99, date: '2 days ago' },
 ];
 
+import { useNavigate } from 'react-router-dom';
+
 export default function Dashboard() {
   const sectionRef = useRef(null);
   const textRef = useRef(null);
   const dashboardRef = useRef(null);
   const sidebarItemsRef = useRef([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -117,7 +120,7 @@ export default function Dashboard() {
             ))}
           </ul>
 
-          <button className="btn-primary flex items-center gap-2 group mt-4">
+          <button onClick={() => navigate('/login')} className="btn-primary flex items-center gap-2 group mt-4">
             Explore the dashboard
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </button>

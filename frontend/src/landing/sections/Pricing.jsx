@@ -57,10 +57,13 @@ const plans = [
   },
 ];
 
+import { useNavigate } from 'react-router-dom';
+
 export default function Pricing() {
   const sectionRef = useRef(null);
   const headingRef = useRef(null);
   const cardsRef = useRef([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -192,6 +195,7 @@ export default function Pricing() {
 
               {/* CTA */}
               <button
+                onClick={() => navigate('/signup')}
                 className={`w-full py-3 rounded-xl font-medium transition-all duration-300 ${
                   plan.highlighted
                     ? 'btn-primary'

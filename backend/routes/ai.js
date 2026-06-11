@@ -38,9 +38,9 @@ router.post('/chat', protect, async (req, res) => {
     let response = '';
 
     if (lowerMsg.includes('save')) {
-      response = 'Try prioritizing your "Needs" and capping "Wants" at 30% of your income.';
+      response = 'Try keeping your wants under 30% of income. Focus on essentials first!';
     } else if (lowerMsg.includes('predict')) {
-      response = 'The AI engine uses Linear Regression to project your next month based on the last 6 months.';
+      response = 'Prediction is based on your average spending over the last 6 months.';
     } else {
       response = 'I am your FinTrack AI assistant. Ask me about your spending trends or saving tips!';
     }

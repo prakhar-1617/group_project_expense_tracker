@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const Split = require('../models/Split');
-const User = require('../models/User'); // We might need this if we auto-add contacts
 const { protect } = require('../middleware/auth');
 
 // @route   GET /api/splits
